@@ -9,8 +9,8 @@
 4 You are in the hallway.
 4 the ITL is to the north and the hallway continues west.
 -1 begin room links R N S E W
-1 -1 -1  2 -1
-2 -1 -1 -1  1
+1 -1  3  2 -1
+2 -1  4 -1  1
 3  1 -1  4 -1
 4  2 -1 -1  3
 -1 begin object properties [take eat]

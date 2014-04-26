@@ -23,10 +23,11 @@ room_t * room = NULL;
 
 // Loads data into structs
 void init(){
-	f = fopen("data", "r");
+	FILE * f = fopen("data", "r");
 	assert(f != NULL);
 
 	// ...
+	
 
 	fclose(f);
 	return;
