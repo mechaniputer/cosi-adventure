@@ -24,6 +24,7 @@ int watsup(){
 int main(){
 	int dead=0,win=0,quit=0;
 	char inp[80];
+	inp[79] = 0;
 	
 	// Load data, create world
 	init();
@@ -40,6 +41,5 @@ int main(){
 		// To get started, let's implement "go <dir>, take <obj>, look, eat <inv item>.
 		
 	}
-	watsup();
 	return 0;
 }
