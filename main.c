@@ -1,13 +1,34 @@
-#include "stdio.h"
-#include "string.h"
+#include <stdio.h>
+#include <string.h>
+#include <assert.h>
+
+typedef struct room room_t;
+typedef struct item item_t;
+
+struct item {
+	char * name;
+	char * description;
+	char ** actions;
+};
+
+struct room {
+	char * description;
+	room_t * east, * west, * north, * south;
+	item_t * items;
+	int item_count;
+};
 
 // global variable to hold room
-int room=0;
+room_t * room = NULL; 
 
 // Loads data into structs
 void init(){
-	
-	
+	f = fopen("data", "r");
+	assert(f != NULL);
+
+	// ...
+
+	fclose(f);
 	return;
 }
 
