@@ -19,15 +19,51 @@ struct room {
 };
 
 /* global variable to hold room*/
-room_t * room = NULL; 
+room_t * room = NULL;
 
 /* Loads data into structs */
 void init(){
-	FILE * f = fopen("data", "r");
+	enum {
+		NONE,
+		ROOM_DESC,
+		ROOM_LINKS,
+		OBJ_PROP,
+		ROOM_OBJS,
+	} desc = NONE;
+
+	int x;
+	FILE * f;
+	char str[80];
+	str[79] = 0;
+
+	f = fopen("data", "r");
 	assert(f != NULL);
 
-	/* ... */
-	
+	while (1) {
+		fscanf(f, " %d", &x);
+
+		if (x == -1) {
+			fscanf(f, " begin %79s\n", str);
+			printf("~%s~\n", str);
+			desc=ROOM_DESC;
+		} else {
+			switch (desc) {
+			case NONE:
+				fprintf(stderr, "Error: Yous si fidodin somehtin srong.\n");
+				break;
+			case ROOM_DESC:
+				//...
+				break;
+			case ROOM_LINKS:
+				//...
+				break;
+			case OBJ_PROP:
+				break;
+			case ROOM_OBJS:
+				break;
+			}
+		}
+	}
 
 	fclose(f);
 	return;
@@ -47,7 +83,7 @@ int main(){
 	int dead=0,win=0,quit=0;
 	char inp[80];
 	inp[79] = 0;
-	
+
 	/* Load data, create world */
 	init();
 
@@ -58,10 +94,9 @@ int main(){
 		scanf ("%79s",inp); /* Get commands */
 
 		if (!strncmp(inp,"quit",4)) quit=1; /* Check if quitting */
-		
+
 		/* This is where a parse function would be called, and it would call other functons accordingly.
 		   To get started, let's implement "go <dir>, take <obj>, look, eat <inv item>. */
-		
 	}
 	return 0;
 }
