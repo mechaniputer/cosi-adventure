@@ -29,7 +29,7 @@ void init(){
 		ROOM_LINKS,
 		OBJ_PROP,
 		ROOM_OBJS,
-	} desc = NONE;
+	} section = NONE;
 
 	int x;
 	FILE * f;
@@ -39,20 +39,17 @@ void init(){
 	f = fopen("data", "r");
 	assert(f != NULL);
 
-	while (1) {
-		fscanf(f, " %d", &x);
-
+	while (fscanf(f, " %d ", &x)) {
 		if (x == -1) {
-			fscanf(f, " begin %79s\n", str);
-			printf("~%s~\n", str);
-			desc=ROOM_DESC;
+			while (fgetc(f) != '\n');
+			section++;
 		} else {
-			switch (desc) {
+			switch (section) {
 			case NONE:
 				fprintf(stderr, "Error: Yous si fidodin somehtin srong.\n");
 				break;
 			case ROOM_DESC:
-				//...
+				fgets(str, 79, f);
 				break;
 			case ROOM_LINKS:
 				//...
