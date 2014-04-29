@@ -33,6 +33,7 @@ void init(){
 	} section = NONE;
 
 	int x;
+	int rv;
 	FILE * f;
 	char str[160]; /* This limits the length of room descriptions */
 	str[159] = 0;
@@ -40,11 +41,10 @@ void init(){
 	f = fopen("data", "r");
 	assert(f != NULL);
 
-	/* TODO There is an error here. 
-	It seems to increment the section whenever there are any "-1"s found. */
-	while (fscanf(f, " %d ", &x)) {
+	/* KLUDGE - stupid assignment trick by Andrew */
+	while ((rv = fscanf(f, "%d ", &x)) && rv != EOF) {
 		if (-1 == x) {
-			while (fgetc(f) != '\n');
+			while ((rv = fgetc(f)) != '\n' && rv != EOF);
 			section++;
 		} else {
 			switch (section) {
@@ -58,19 +58,23 @@ void init(){
 				break;
 			}
 			case ROOM_LINKS: {
+				fgets(str, 159, f);
 				printf("Loading ROOM_LINKS\n");
 				/*...*/
 				break;
 			}
 			case OBJ_PROP: {
+				fgets(str, 159, f);
 				printf("Loading OBJ_PROP\n");
 				break;
 			}
 			case ROOM_OBJS: {
+				fgets(str, 159, f);
 				printf("Loading ROOM_OBJS\n");
 				break;
 			}
 			default: {
+				fgets(str, 159, f);
 				fprintf(stderr, "Error: default case reached?\n");
 				break;
 			}
