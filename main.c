@@ -23,6 +23,7 @@ room_t * room = NULL;
 
 /* Loads data into structs */
 void init(){
+	/* This enum defines the sections of the datafile in order */
 	enum {
 		NONE,
 		ROOM_DESC,
@@ -33,31 +34,46 @@ void init(){
 
 	int x;
 	FILE * f;
-	char str[80];
-	str[79] = 0;
+	char str[160]; /* This limits the length of room descriptions */
+	str[159] = 0;
 
 	f = fopen("data", "r");
 	assert(f != NULL);
 
+	/* TODO There is an error here. 
+	It seems to increment the section whenever there are any "-1"s found. */
 	while (fscanf(f, " %d ", &x)) {
-		if (x == -1) {
+		if (-1 == x) {
 			while (fgetc(f) != '\n');
 			section++;
 		} else {
 			switch (section) {
-			case NONE:
+			case NONE: {
 				fprintf(stderr, "Error: Yous si fidodin somehtin srong.\n");
 				break;
-			case ROOM_DESC:
-				fgets(str, 79, f);
+			}
+			case ROOM_DESC: {
+				fgets(str, 159, f);
+				printf("Loading ROOM_DESC\n");
 				break;
-			case ROOM_LINKS:
-				//...
+			}
+			case ROOM_LINKS: {
+				printf("Loading ROOM_LINKS\n");
+				/*...*/
 				break;
-			case OBJ_PROP:
+			}
+			case OBJ_PROP: {
+				printf("Loading OBJ_PROP\n");
 				break;
-			case ROOM_OBJS:
+			}
+			case ROOM_OBJS: {
+				printf("Loading ROOM_OBJS\n");
 				break;
+			}
+			default: {
+				fprintf(stderr, "Error: default case reached?\n");
+				break;
+			}
 			}
 		}
 	}
