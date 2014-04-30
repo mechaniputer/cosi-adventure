@@ -130,7 +130,7 @@ int watsup(){
 
 void go(compass c)
 {
-	room_t * n;
+	room_t * n = NULL;
 
 	switch (c) {
 	case NORTH: n = room->north; break;

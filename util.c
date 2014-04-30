@@ -1,4 +1,4 @@
-#include <malloc.h>
+#include <stdlib.h>
 #include "util.h"
 
 char * getstring(char d, FILE * f) {
