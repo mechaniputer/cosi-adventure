@@ -143,6 +143,7 @@ void go(compass c)
 		puts("You cannot go that way.");
 	} else {
 		room = n;
+		watsup();
 	}
 }
 
@@ -153,10 +154,10 @@ int main(){
 
 	/* Load data, create world */
 	init();
+	watsup();
 
 	/* loop runs watsup() and inner loop takes commands until one works */
 	while(!dead && !win && !quit){
-		watsup(); /* Tell the user watsup */
 		printf("What do? ");
 		scanf ("%79s",inp); /* Get commands */
 
