@@ -26,8 +26,8 @@ typedef enum {
 	WEST
 } compass;
 
-/* global variable to hold room*/
 room_t * room = NULL;
+item_t * item = NULL;
 
 /* Loads data into structs */
 void init(){
@@ -43,8 +43,11 @@ void init(){
 	int x;
 	int rv;
 	int n, s, e, w;
+	int rm, itm;
 	FILE * f;
 	room_t * rooms = malloc(sizeof(room_t) * 4);
+	item_t * items = malloc(sizeof(item_t) * 2);
+	
 	char str[160]; /* This limits the length of room descriptions */
 	str[159] = 0;
 
@@ -58,6 +61,12 @@ void init(){
 		rooms[x].items = NULL;
 	}
 
+	for (x=0; x<1; x++){
+		items[x].name = NULL;
+		items[x].description = NULL;
+		items[x].actions = NULL;
+	}
+	
 	f = fopen("data", "r");
 	assert(f != NULL);
 
@@ -93,11 +102,17 @@ void init(){
 				break;
 
 			case OBJ_PROP:
+				assert(x < 2);
+				items[x].name = getstring('\n', f);
+				fscanf(f, "%d ", &x);
+				items[x].description = getstring('\n', f);
+				fscanf(f, "%d ", &x);
 				fgets(str, 159, f);
 				break;
 
 			case ROOM_OBJS:
-				fgets(str, 159, f);
+				assert(2 == fscanf(f, " %d %d\n", &rm, &itm));
+				rooms[rm].items = &items[itm];
 				break;
 
 			default:
@@ -125,6 +140,10 @@ int watsup(){
 
 	puts(room->description);
 
+	if (room->items != NULL){
+		puts(room->items->description);
+	}
+	
 	return 0;
 }
 

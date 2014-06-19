@@ -8,10 +8,14 @@
 1 -1  3 -1  0
 2  0 -1  3 -1
 3  1 -1 -1  2
--1 begin object properties [take eat]
+-1 begin object properties [take eat lock]
 0 pizza
 0 There is free pizza on the table.
-0 1 1
+0 1 1 0
+1 ITL door
+1 The ITL door is unlocked
+1 0 0 1
 -1 begin room-object lists
-0 0
+0 0 0
+0 1 1
 -1
