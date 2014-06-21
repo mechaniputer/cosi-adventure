@@ -27,7 +27,6 @@ typedef enum {
 } compass;
 
 room_t * room = NULL;
-item_t * item = NULL;
 
 /* Loads data into structs */
 void init(){
