@@ -147,8 +147,8 @@ int watsup(){
 	return 0;
 }
 
-void go(compass c)
-{
+void go(compass c){
+
 	room_t * n = NULL;
 
 	switch (c) {
