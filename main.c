@@ -27,6 +27,7 @@ typedef enum {
 } compass;
 
 room_t * room = NULL;
+item_t * inventory = NULL;
 
 /* Loads data into structs */
 void init(){
@@ -60,7 +61,7 @@ void init(){
 		rooms[x].items = NULL;
 	}
 
-	for (x=0; x<1; x++){
+	for (x=0; x<2; x++){
 		items[x].name = NULL;
 		items[x].description = NULL;
 		items[x].actions = NULL;
@@ -147,7 +148,6 @@ int watsup(){
 }
 
 void go(compass c){
-
 	room_t * n = NULL;
 
 	switch (c) {
@@ -163,6 +163,21 @@ void go(compass c){
 		room = n;
 		watsup();
 	}
+}
+
+void take(){
+	inventory = room->items;
+	room->items = NULL;
+}
+
+void drop(){
+	room->items = inventory;
+	inventory = NULL;
+}
+
+void showinv(){
+	if (inventory != NULL) puts(inventory->name);
+
 }
 
 int main(){
@@ -184,6 +199,10 @@ int main(){
 		if (!strncmp(inp,"south",5)) go(SOUTH);
 		if (!strncmp(inp,"east",4)) go(EAST);
 		if (!strncmp(inp,"west",4)) go(WEST);
+		if (!strncmp(inp,"take",4)) take();
+		if (!strncmp(inp,"drop",4)) drop();
+		if (!strncmp(inp,"look",4)) watsup();
+		if (!strncmp(inp,"inv",3)) showinv();
 
 		/* This is where a parse function would be called, and it would call other functons accordingly.
 		   To get started, let's implement "go <dir>, take <obj>, look, eat <inv item>. */
