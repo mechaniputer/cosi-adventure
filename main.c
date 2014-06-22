@@ -16,7 +16,7 @@ struct item {
 struct room {
 	char * description;
 	room_t * north, * south, * east, * west;
-	item_t * items;
+	item_t ** items;
 };
 
 typedef enum {
@@ -27,7 +27,7 @@ typedef enum {
 } compass;
 
 room_t * room = NULL;
-item_t * inventory = NULL;
+item_t ** inventory = NULL;
 
 /* Loads data into structs */
 void init(){
@@ -58,7 +58,11 @@ void init(){
 		rooms[x].south = NULL;
 		rooms[x].east  = NULL;
 		rooms[x].west  = NULL;
-		rooms[x].items = NULL;
+
+		rooms[x].items = malloc(sizeof(item_t) * 3);
+		rooms[x].items[0] = NULL;
+		rooms[x].items[1] = NULL;
+		rooms[x].items[2] = NULL;
 	}
 
 	for (x=0; x<2; x++){
@@ -112,7 +116,7 @@ void init(){
 
 			case ROOM_OBJS:
 				assert(2 == fscanf(f, " %d %d\n", &rm, &itm));
-				rooms[rm].items = &items[itm];
+				rooms[rm].items[0] = &items[itm];
 				break;
 
 			default:
@@ -124,15 +128,20 @@ void init(){
 	}
 
 	fclose(f);
-
+	
 	room = rooms;
+
+	/* Initialize inventory */
+	inventory = malloc(sizeof(item_t) * 3);
+		for (x = 0; x < 3; x++) {
+			inventory[x] = NULL;
+		}
 	return;
 }
 
 /* Describes the situation */
 int watsup(){
-	/* This function should use a data file of rooms and a global room number to print the room description.
-	   The room description should be able to change even within the same room.
+	/* The room description should be able to change even within the same room.
 	   Semi-random events should also be printed. (e.g. "Chris falls out of his chair")
 	   Additionally, it should list objects in the room. */
 
@@ -140,10 +149,12 @@ int watsup(){
 
 	puts(room->description);
 
-	if (room->items != NULL){
-		puts(room->items->description);
-	}
 	
+	
+	if (room->items[0] != NULL){
+		puts(room->items[0]->description);
+	}
+
 	return 0;
 }
 
@@ -166,17 +177,17 @@ void go(compass c){
 }
 
 void take(){
-	inventory = room->items;
-	room->items = NULL;
+	inventory[0] = room->items[0];
+	room->items[0] = NULL;
 }
 
 void drop(){
-	room->items = inventory;
-	inventory = NULL;
+	room->items[0] = inventory[0];
+	inventory[0] = NULL;
 }
 
 void showinv(){
-	if (inventory != NULL) puts(inventory->name);
+	if (inventory[0] != NULL) puts(inventory[0]->name);
 
 }
 
@@ -194,7 +205,7 @@ int main(){
 		printf("What do? ");
 		scanf ("%79s",inp); /* Get commands */
 
-		if (!strncmp(inp,"quit",4)) quit=1; /* Check if quitting */
+		if (!strncmp(inp,"quit",4)) quit=1;
 		if (!strncmp(inp,"north",5)) go(NORTH);
 		if (!strncmp(inp,"south",5)) go(SOUTH);
 		if (!strncmp(inp,"east",4)) go(EAST);
