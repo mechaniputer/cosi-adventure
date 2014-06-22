@@ -6,6 +6,7 @@
 
 typedef struct room room_t;
 typedef struct item item_t;
+typedef struct itemList itemList_t;
 
 struct item {
 	char * name;
@@ -16,7 +17,14 @@ struct item {
 struct room {
 	char * description;
 	room_t * north, * south, * east, * west;
-	item_t ** items;
+	itemList_t * items;
+};
+
+/* Although cumbersome, this will hopefully make dynamic allocation easier */
+struct itemList {
+	item_t ** itemArray;
+	int capacity;
+	int size;
 };
 
 typedef enum {
@@ -27,10 +35,10 @@ typedef enum {
 } compass;
 
 room_t * room = NULL;
-item_t ** inventory = NULL;
+itemList_t * inventory = NULL;
 
 /* Loads data into structs */
-void init(){
+void init(){	
 	/* This enum defines the sections of the datafile in order */
 	enum {
 		NONE,
@@ -46,31 +54,35 @@ void init(){
 	int rm, itm;
 	FILE * f;
 	room_t * rooms = malloc(sizeof(room_t) * 4);
-	item_t * items = malloc(sizeof(item_t) * 2);
-	
+	item_t * items = malloc(sizeof(item_t) * 3);
+
 	char str[160]; /* This limits the length of room descriptions */
 	str[159] = 0;
 
 	/* probably should move this somewhere else */
+	/* Also need a better way of doing this. Should not have the number of rooms hardcoded! */
 	for (x = 0; x < 4; x++) {
 		rooms[x].description = NULL;
 		rooms[x].north = NULL;
 		rooms[x].south = NULL;
 		rooms[x].east  = NULL;
 		rooms[x].west  = NULL;
+		rooms[x].items = malloc(sizeof(itemList_t));
 
-		rooms[x].items = malloc(sizeof(item_t) * 3);
-		rooms[x].items[0] = NULL;
-		rooms[x].items[1] = NULL;
-		rooms[x].items[2] = NULL;
+		rooms[x].items->itemArray = malloc(sizeof(item_t) * 3);
+		rooms[x].items->itemArray[0] = NULL;
+		rooms[x].items->itemArray[1] = NULL;
+		rooms[x].items->itemArray[2] = NULL;
+		rooms[x].items->capacity = 3;
+		rooms[x].items->size = 0;
 	}
 
-	for (x=0; x<2; x++){
+	for (x=0; x<3; x++){
 		items[x].name = NULL;
 		items[x].description = NULL;
 		items[x].actions = NULL;
 	}
-	
+
 	f = fopen("data", "r");
 	assert(f != NULL);
 
@@ -106,7 +118,7 @@ void init(){
 				break;
 
 			case OBJ_PROP:
-				assert(x < 2);
+				assert(x < 3);
 				items[x].name = getstring('\n', f);
 				fscanf(f, "%d ", &x);
 				items[x].description = getstring('\n', f);
@@ -116,7 +128,8 @@ void init(){
 
 			case ROOM_OBJS:
 				assert(2 == fscanf(f, " %d %d\n", &rm, &itm));
-				rooms[rm].items[0] = &items[itm];
+				rooms[rm].items->itemArray[rooms[rm].items->size] = &items[itm];
+				(rooms[rm].items->size)++;
 				break;
 
 			default:
@@ -128,14 +141,18 @@ void init(){
 	}
 
 	fclose(f);
-	
+
 	room = rooms;
 
 	/* Initialize inventory */
-	inventory = malloc(sizeof(item_t) * 3);
+	inventory = malloc(sizeof(itemList_t));
+	inventory->itemArray = malloc(sizeof(item_t) * 3);
 		for (x = 0; x < 3; x++) {
-			inventory[x] = NULL;
+			inventory->itemArray[x] = NULL;
 		}
+	inventory->capacity = 3;
+	inventory->size = 0;
+
 	return;
 }
 
@@ -144,17 +161,14 @@ int watsup(){
 	/* The room description should be able to change even within the same room.
 	   Semi-random events should also be printed. (e.g. "Chris falls out of his chair")
 	   Additionally, it should list objects in the room. */
+	int x;
 
 	assert(room != NULL);
-
 	puts(room->description);
 
-	
-	
-	if (room->items[0] != NULL){
-		puts(room->items[0]->description);
+	for (x = 0; x < (room->items->size); x++){
+		puts(room->items->itemArray[x]->description);
 	}
-
 	return 0;
 }
 
@@ -177,18 +191,28 @@ void go(compass c){
 }
 
 void take(){
-	inventory[0] = room->items[0];
-	room->items[0] = NULL;
+	if ((inventory->size < inventory->capacity)&&(room->items->size > 0)){
+		inventory->itemArray[inventory->size] = room->items->itemArray[(room->items->size)-1];
+		(inventory->size)++;
+		room->items->itemArray[(room->items->size)-1] = NULL;
+		(room->items->size)--;
+	}else puts("Nothing here, or your inventory is full");
 }
 
 void drop(){
-	room->items[0] = inventory[0];
-	inventory[0] = NULL;
+	if ((room->items->size < room->items->capacity)&&(inventory->size > 0)){
+		room->items->itemArray[room->items->size] = inventory->itemArray[(inventory->size)-1];
+		(room->items->size)++;
+		inventory->itemArray[(inventory->size)-1] = NULL;
+		(inventory->size)--;
+	}else puts("Your inventory is empty, or the room is full");
 }
 
 void showinv(){
-	if (inventory[0] != NULL) puts(inventory[0]->name);
-
+	int x;
+	for (x = 0; x < (inventory->size); x++){
+		if (inventory->itemArray[x] != NULL) puts(inventory->itemArray[x]->name);
+	}
 }
 
 int main(){

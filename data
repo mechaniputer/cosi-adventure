@@ -15,7 +15,11 @@
 1 ITL door
 1 The ITL door is unlocked
 1 0 0 1
+2 Moxie
+2 There is Moxie in the fridge.
+2 1 1 0
 -1 begin room-object lists
 0 0 0
+0 0 2
 0 1 1
 -1
