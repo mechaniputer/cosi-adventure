@@ -6,6 +6,11 @@
 
 room_t * room = NULL;
 itemList_t * inventory = NULL;
+room_t * allRooms = NULL;
+item_t * allItems = NULL;
+
+int numRooms = 4;
+int numItems = 3;
 
 /* Loads data into structs */
 void init(){
@@ -23,23 +28,24 @@ void init(){
 	int n, s, e, w;
 	int rm, itm;
 	FILE * f;
-	room_t * rooms = malloc(sizeof(room_t) * 4);
-	item_t * items = malloc(sizeof(item_t) * 3);
 
 	char str[160]; /* This limits the length of room descriptions */
 	str[159] = 0;
 
+	allRooms = malloc(sizeof(room_t) * numRooms);
+	allItems = malloc(sizeof(item_t) * numItems);
+
 	/* Should not have the number of rooms hardcoded! */
-	for (x = 0; x < 4; x++) {
-		rooms[x].items = malloc(sizeof(itemList_t));
-		rooms[x].items->itemArray = malloc(sizeof(item_t) * 3);
-		roomInit(rooms[x]);
+	for (x = 0; x < numRooms; x++) {
+		allRooms[x].items = malloc(sizeof(itemList_t));
+		allRooms[x].items->itemArray = malloc(sizeof(item_t) * numItems);
+		roomInit(allRooms[x]);
 	}
 
-	for (x=0; x<3; x++){
-		items[x].name = NULL;
-		items[x].description = NULL;
-		items[x].actions = NULL;
+	for (x = 0; x < numItems; x++){
+		allItems[x].name = NULL;
+		allItems[x].description = NULL;
+		allItems[x].actions = NULL;
 	}
 
 	f = fopen("data", "r");
@@ -57,8 +63,8 @@ void init(){
 				break;
 
 			case ROOM_DESC:
-				assert(x < 4);
-				rooms[x].description = getstring('\n', f);
+				assert(x < numRooms);
+				allRooms[x].description = getstring('\n', f);
 				break;
 
 			case ROOM_LINKS:
@@ -70,25 +76,25 @@ void init(){
 				assert(e < 4);
 				assert(w < 4);
 
-				rooms[x].north = n != -1 ? rooms + n : NULL;
-				rooms[x].south = s != -1 ? rooms + s : NULL;
-				rooms[x].east  = e != -1 ? rooms + e : NULL;
-				rooms[x].west  = w != -1 ? rooms + w : NULL;
+				allRooms[x].north = n != -1 ? allRooms + n : NULL;
+				allRooms[x].south = s != -1 ? allRooms + s : NULL;
+				allRooms[x].east  = e != -1 ? allRooms + e : NULL;
+				allRooms[x].west  = w != -1 ? allRooms + w : NULL;
 				break;
 
 			case OBJ_PROP:
-				assert(x < 3);
-				items[x].name = getstring('\n', f);
+				assert(x < numItems);
+				allItems[x].name = getstring('\n', f);
 				fscanf(f, "%d ", &x);
-				items[x].description = getstring('\n', f);
+				allItems[x].description = getstring('\n', f);
 				fscanf(f, "%d ", &x);
 				fgets(str, 159, f);
 				break;
 
 			case ROOM_OBJS:
 				assert(2 == fscanf(f, " %d %d\n", &rm, &itm));
-				rooms[rm].items->itemArray[rooms[rm].items->size] = &items[itm];
-				(rooms[rm].items->size)++;
+				allRooms[rm].items->itemArray[allRooms[rm].items->size] = &allItems[itm];
+				(allRooms[rm].items->size)++;
 				break;
 
 			default:
@@ -101,15 +107,15 @@ void init(){
 
 	fclose(f);
 
-	room = rooms;
+	room = allRooms;
 
 	/* Initialize inventory */
 	inventory = malloc(sizeof(itemList_t));
-	inventory->itemArray = malloc(sizeof(item_t) * 3);
-		for (x = 0; x < 3; x++) {
+	inventory->itemArray = malloc(sizeof(item_t) * numItems);
+		for (x = 0; x < numItems; x++) {
 			inventory->itemArray[x] = NULL;
 		}
-	inventory->capacity = 3;
+	inventory->capacity = numItems;
 	inventory->size = 0;
 
 	return;
@@ -201,5 +207,22 @@ int main(){
 		/* This is where a parse function would be called, and it would call other functons accordingly.
 		   To get started, let's implement "go <dir>, take <obj>, look, eat <inv item>. */
 	}
+
+	/* free() everything */
+	for (quit = 0; quit < numItems; quit++){
+		free(allItems[quit].name);
+		free(allItems[quit].description);
+	}
+	free(allItems);
+
+	for (quit = 0; quit < numRooms; quit++){
+		free(allRooms[quit].items->itemArray);
+		free(allRooms[quit].items);
+		free(allRooms[quit].description);
+	}
+	free(allRooms);
+	free(inventory->itemArray);
+	free(inventory);
+
 	return 0;
 }
