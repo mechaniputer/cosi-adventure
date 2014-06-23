@@ -13,7 +13,22 @@ char * getstring(char d, FILE * f) {
 		}
 		buf[i++] = c;
 	}
-
 	buf[i] = 0;
 	return buf;
+}
+
+void roomInit(room_t newroom){
+	int x;
+	newroom.description = NULL;
+	newroom.north = NULL;
+	newroom.south = NULL;
+	newroom.east  = NULL;
+	newroom.west  = NULL;
+
+	for (x = 0; x < 3; x++){
+		newroom.items->itemArray[x] = NULL;
+	}
+
+	newroom.items->capacity = 3;
+	newroom.items->size = 0;
 }

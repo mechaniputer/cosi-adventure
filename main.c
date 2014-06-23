@@ -4,41 +4,11 @@
 #include <assert.h>
 #include "util.h"
 
-typedef struct room room_t;
-typedef struct item item_t;
-typedef struct itemList itemList_t;
-
-struct item {
-	char * name;
-	char * description;
-	char ** actions;
-};
-
-struct room {
-	char * description;
-	room_t * north, * south, * east, * west;
-	itemList_t * items;
-};
-
-/* Although cumbersome, this will hopefully make dynamic allocation easier */
-struct itemList {
-	item_t ** itemArray;
-	int capacity;
-	int size;
-};
-
-typedef enum {
-	NORTH,
-	SOUTH,
-	EAST,
-	WEST
-} compass;
-
 room_t * room = NULL;
 itemList_t * inventory = NULL;
 
 /* Loads data into structs */
-void init(){	
+void init(){
 	/* This enum defines the sections of the datafile in order */
 	enum {
 		NONE,
@@ -59,22 +29,11 @@ void init(){
 	char str[160]; /* This limits the length of room descriptions */
 	str[159] = 0;
 
-	/* probably should move this somewhere else */
-	/* Also need a better way of doing this. Should not have the number of rooms hardcoded! */
+	/* Should not have the number of rooms hardcoded! */
 	for (x = 0; x < 4; x++) {
-		rooms[x].description = NULL;
-		rooms[x].north = NULL;
-		rooms[x].south = NULL;
-		rooms[x].east  = NULL;
-		rooms[x].west  = NULL;
 		rooms[x].items = malloc(sizeof(itemList_t));
-
 		rooms[x].items->itemArray = malloc(sizeof(item_t) * 3);
-		rooms[x].items->itemArray[0] = NULL;
-		rooms[x].items->itemArray[1] = NULL;
-		rooms[x].items->itemArray[2] = NULL;
-		rooms[x].items->capacity = 3;
-		rooms[x].items->size = 0;
+		roomInit(rooms[x]);
 	}
 
 	for (x=0; x<3; x++){
