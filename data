@@ -2,12 +2,18 @@
 0 You are in COSI. To the east is the ITL. There is an exit south.
 1 You are in the ITL. There is a class right now, and everyone is looking at you awkwardly. To the west is COSI. There is an exit south.
 2 You are in the hallway. COSI is to the north and the hallway continues east.
-3 You are in the hallway. The ITL is to the north and the hallway continues west.
+3 You are in the hallway. The ITL is to the north and the hallway continues east and west.
+4 You are outside Tony's office. The hallway continues north and west.
+5 You are near the Snell bridge. The hallway continues south and west.
+6 You are at the bottom of the snell ramp-bridge. The hallway continues east.
 -1 begin room links R N S E W
 0 -1  2  1 -1
 1 -1  3 -1  0
 2  0 -1  3 -1
-3  1 -1 -1  2
+3  1 -1  4  2
+4  5 -1 -1  3
+5 -1  4 -1  6
+6 -1 -1  5 -1
 -1 begin object properties [take eat lock]
 0 pizza
 0 There is free pizza on the table.
@@ -18,8 +24,12 @@
 2 Moxie
 2 There is Moxie in the fridge.
 2 1 1 0
+3 COSI chair
+3 There is a rolling chair.
+3 1 0 0
 -1 begin room-object lists
 0 0 0
 0 0 2
+0 0 3
 0 1 1
 -1
