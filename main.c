@@ -6,11 +6,27 @@
 
 room_t * room = NULL;
 itemList_t * inventory = NULL;
+itemList_t * allItems = NULL;
 room_t * allRooms = NULL;
-item_t * allItems = NULL;
 
-int numRooms = 4;
-int numItems = 3;
+
+int numRooms = 0;
+
+/* THIS SHOULD NOT BE HERE but lazy*/
+void addRoom(){
+	numRooms++;
+	allRooms = realloc(allRooms, sizeof(room_t) * numRooms);
+
+	allRooms[numRooms-1].items = malloc(sizeof(itemList_t));
+	allRooms[numRooms-1].items->itemArray = malloc(sizeof(item_t) * 1);
+	roomInit(allRooms[numRooms-1]);
+}
+
+/* THIS SHOULD NOT BE HERE EITHER but lazy*/
+void addItem(itemList_t * inv){
+	(inv->capacity)++;
+	inv->itemArray = realloc(inv->itemArray, sizeof(item_t) * (inv->capacity));
+}
 
 /* Loads data into structs */
 void init(){
@@ -32,21 +48,9 @@ void init(){
 	char str[160]; /* This limits the length of room descriptions */
 	str[159] = 0;
 
-	allRooms = malloc(sizeof(room_t) * numRooms);
-	allItems = malloc(sizeof(item_t) * numItems);
-
-	/* Should not have the number of rooms hardcoded! */
-	for (x = 0; x < numRooms; x++) {
-		allRooms[x].items = malloc(sizeof(itemList_t));
-		allRooms[x].items->itemArray = malloc(sizeof(item_t) * numItems);
-		roomInit(allRooms[x]);
-	}
-
-	for (x = 0; x < numItems; x++){
-		allItems[x].name = NULL;
-		allItems[x].description = NULL;
-		allItems[x].actions = NULL;
-	}
+	allItems = malloc(sizeof(itemList_t));
+	allItems->capacity = 0;
+	allItems->size = 0;
 
 	f = fopen("data", "r");
 	assert(f != NULL);
@@ -63,18 +67,12 @@ void init(){
 				break;
 
 			case ROOM_DESC:
-				assert(x < numRooms);
+				if (x == numRooms) addRoom();
 				allRooms[x].description = getstring('\n', f);
 				break;
 
 			case ROOM_LINKS:
 				assert(4 == fscanf(f, " %d %d %d %d\n", &n, &s, &e, &w));
-
-				assert(x < 4);
-				assert(n < 4);
-				assert(s < 4);
-				assert(e < 4);
-				assert(w < 4);
 
 				allRooms[x].north = n != -1 ? allRooms + n : NULL;
 				allRooms[x].south = s != -1 ? allRooms + s : NULL;
@@ -83,17 +81,26 @@ void init(){
 				break;
 
 			case OBJ_PROP:
-				assert(x < numItems);
-				allItems[x].name = getstring('\n', f);
+
+				if (allItems->size == allItems->capacity){
+					addItem(allItems);
+					/* This leaks 1 block for each global item but prevents a segfault*/
+					allItems->itemArray[(allItems->capacity)-1] = malloc(sizeof(item_t));
+				}
+				allItems->itemArray[x]->name = getstring('\n', f);
 				fscanf(f, "%d ", &x);
-				allItems[x].description = getstring('\n', f);
+				allItems->itemArray[x]->description = getstring('\n', f);
 				fscanf(f, "%d ", &x);
 				fgets(str, 159, f);
+				allItems->size++;
 				break;
 
 			case ROOM_OBJS:
 				assert(2 == fscanf(f, " %d %d\n", &rm, &itm));
-				allRooms[rm].items->itemArray[allRooms[rm].items->size] = &allItems[itm];
+				if(allRooms[rm].items->size == allRooms[rm].items->capacity){;
+					addItem(allRooms[rm].items);
+				}
+				allRooms[rm].items->itemArray[allRooms[rm].items->size] = allItems->itemArray[itm];
 				(allRooms[rm].items->size)++;
 				break;
 
@@ -111,11 +118,9 @@ void init(){
 
 	/* Initialize inventory */
 	inventory = malloc(sizeof(itemList_t));
-	inventory->itemArray = malloc(sizeof(item_t) * numItems);
-		for (x = 0; x < numItems; x++) {
-			inventory->itemArray[x] = NULL;
-		}
-	inventory->capacity = numItems;
+	inventory->itemArray = malloc(sizeof(item_t) * 1);
+	
+	inventory->capacity = 1;
 	inventory->size = 0;
 
 	return;
@@ -156,16 +161,22 @@ void go(compass c){
 }
 
 void take(){
-	if ((inventory->size < inventory->capacity)&&(room->items->size > 0)){
+	if (room->items->size > 0){
+		if (inventory->size == inventory->capacity){
+			addItem(inventory);
+		}
 		inventory->itemArray[inventory->size] = room->items->itemArray[(room->items->size)-1];
 		(inventory->size)++;
 		room->items->itemArray[(room->items->size)-1] = NULL;
 		(room->items->size)--;
-	}else puts("Nothing here, or your inventory is full");
+	}else puts("Nothing here.");
 }
 
 void drop(){
-	if ((room->items->size < room->items->capacity)&&(inventory->size > 0)){
+	if (inventory->size > 0){
+		if(room->items->size == room->items->capacity){
+			addItem(room->items);
+		}
 		room->items->itemArray[room->items->size] = inventory->itemArray[(inventory->size)-1];
 		(room->items->size)++;
 		inventory->itemArray[(inventory->size)-1] = NULL;
@@ -209,10 +220,11 @@ int main(){
 	}
 
 	/* free() everything */
-	for (quit = 0; quit < numItems; quit++){
-		free(allItems[quit].name);
-		free(allItems[quit].description);
+	for (quit = 0; quit < allItems->size; quit++){
+		free(allItems->itemArray[quit]->name);
+		free(allItems->itemArray[quit]->description);
 	}
+	free(allItems->itemArray);
 	free(allItems);
 
 	for (quit = 0; quit < numRooms; quit++){
