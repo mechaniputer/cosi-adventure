@@ -24,8 +24,6 @@ void roomInit(room_t newroom){
 	newroom.east  = NULL;
 	newroom.west  = NULL;
 
-	newroom.items->itemArray[0] = NULL;
-
-	newroom.items->capacity = 1;
+	newroom.items->capacity = 0;
 	newroom.items->size = 0;
 }

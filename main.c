@@ -9,16 +9,14 @@ itemList_t * inventory = NULL;
 itemList_t * allItems = NULL;
 room_t * allRooms = NULL;
 
-
 int numRooms = 0;
 
 /* THIS SHOULD NOT BE HERE but lazy*/
 void addRoom(){
 	numRooms++;
 	allRooms = realloc(allRooms, sizeof(room_t) * numRooms);
-
 	allRooms[numRooms-1].items = malloc(sizeof(itemList_t));
-	allRooms[numRooms-1].items->itemArray = malloc(sizeof(item_t) * 1);
+	allRooms[numRooms-1].items->itemArray = NULL;
 	roomInit(allRooms[numRooms-1]);
 }
 
@@ -26,6 +24,7 @@ void addRoom(){
 void addItem(itemList_t * inv){
 	(inv->capacity)++;
 	inv->itemArray = realloc(inv->itemArray, sizeof(item_t) * (inv->capacity));
+	inv->itemArray[(inv->capacity)-1] = NULL;
 }
 
 /* Loads data into structs */
@@ -49,6 +48,7 @@ void init(){
 	str[159] = 0;
 
 	allItems = malloc(sizeof(itemList_t));
+	allItems->itemArray = NULL;
 	allItems->capacity = 0;
 	allItems->size = 0;
 
@@ -73,7 +73,6 @@ void init(){
 
 			case ROOM_LINKS:
 				assert(4 == fscanf(f, " %d %d %d %d\n", &n, &s, &e, &w));
-
 				allRooms[x].north = n != -1 ? allRooms + n : NULL;
 				allRooms[x].south = s != -1 ? allRooms + s : NULL;
 				allRooms[x].east  = e != -1 ? allRooms + e : NULL;
@@ -84,9 +83,8 @@ void init(){
 
 				if (allItems->size == allItems->capacity){
 					addItem(allItems);
-					/* This leaks 1 block for each global item but prevents a segfault*/
-					allItems->itemArray[(allItems->capacity)-1] = malloc(sizeof(item_t));
 				}
+				allItems->itemArray[x] = malloc(sizeof(item_t));
 				allItems->itemArray[x]->name = getstring('\n', f);
 				fscanf(f, "%d ", &x);
 				allItems->itemArray[x]->description = getstring('\n', f);
@@ -97,7 +95,7 @@ void init(){
 
 			case ROOM_OBJS:
 				assert(2 == fscanf(f, " %d %d\n", &rm, &itm));
-				if(allRooms[rm].items->size == allRooms[rm].items->capacity){;
+				if(allRooms[rm].items->size == allRooms[rm].items->capacity){
 					addItem(allRooms[rm].items);
 				}
 				allRooms[rm].items->itemArray[allRooms[rm].items->size] = allItems->itemArray[itm];
@@ -118,9 +116,8 @@ void init(){
 
 	/* Initialize inventory */
 	inventory = malloc(sizeof(itemList_t));
-	inventory->itemArray = malloc(sizeof(item_t) * 1);
-	
-	inventory->capacity = 1;
+	inventory->itemArray = NULL;
+	inventory->capacity = 0;
 	inventory->size = 0;
 
 	return;
@@ -169,6 +166,7 @@ void take(){
 		(inventory->size)++;
 		room->items->itemArray[(room->items->size)-1] = NULL;
 		(room->items->size)--;
+		puts("Taken.");
 	}else puts("Nothing here.");
 }
 
@@ -181,7 +179,7 @@ void drop(){
 		(room->items->size)++;
 		inventory->itemArray[(inventory->size)-1] = NULL;
 		(inventory->size)--;
-	}else puts("Your inventory is empty, or the room is full");
+	}else puts("Your inventory is empty.");
 }
 
 void showinv(){
@@ -220,9 +218,10 @@ int main(){
 	}
 
 	/* free() everything */
-	for (quit = 0; quit < allItems->size; quit++){
+	for (quit = 0; quit < allItems->capacity; quit++){
 		free(allItems->itemArray[quit]->name);
 		free(allItems->itemArray[quit]->description);
+		free(allItems->itemArray[quit]);
 	}
 	free(allItems->itemArray);
 	free(allItems);
