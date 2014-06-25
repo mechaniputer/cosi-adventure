@@ -133,28 +133,28 @@ void go(compass c, room_t ** room){
 	}
 }
 
-void take(world_t * clarkson){
-	if (clarkson->room->items->size > 0){
-		if (clarkson->inventory->size == clarkson->inventory->capacity){
-			addItem(clarkson->inventory);
+void take(itemList_t * roomItems, itemList_t * inventory){
+	if (roomItems->size > 0){
+		if (inventory->size == inventory->capacity){
+			addItem(inventory);
 		}
-		clarkson->inventory->itemArray[clarkson->inventory->size] = clarkson->room->items->itemArray[(clarkson->room->items->size)-1];
-		(clarkson->inventory->size)++;
-		clarkson->room->items->itemArray[(clarkson->room->items->size)-1] = NULL;
-		(clarkson->room->items->size)--;
+		inventory->itemArray[inventory->size] = roomItems->itemArray[(roomItems->size)-1];
+		(inventory->size)++;
+		roomItems->itemArray[(roomItems->size)-1] = NULL;
+		(roomItems->size)--;
 		puts("Taken.");
 	}else puts("Nothing here.");
 }
 
-void drop(world_t * clarkson){
-	if (clarkson->inventory->size > 0){
-		if(clarkson->room->items->size == clarkson->room->items->capacity){
-			addItem(clarkson->room->items);
+void drop(itemList_t * roomItems, itemList_t * inventory){
+	if (inventory->size > 0){
+		if(roomItems->size == roomItems->capacity){
+			addItem(roomItems);
 		}
-		clarkson->room->items->itemArray[clarkson->room->items->size] = clarkson->inventory->itemArray[(clarkson->inventory->size)-1];
-		(clarkson->room->items->size)++;
-		clarkson->inventory->itemArray[(clarkson->inventory->size)-1] = NULL;
-		(clarkson->inventory->size)--;
+		roomItems->itemArray[roomItems->size] = inventory->itemArray[(inventory->size)-1];
+		(roomItems->size)++;
+		inventory->itemArray[(inventory->size)-1] = NULL;
+		(inventory->size)--;
 	}else puts("Your inventory is empty.");
 }
 
@@ -171,7 +171,6 @@ int main(){
 	char inp[80];
 	inp[79] = 0;
 
-	/* Experimental and possibly stupid */
 	clarkson = malloc(sizeof(world_t));
 
 	worldInit(clarkson);
@@ -190,8 +189,8 @@ int main(){
 		if (!strncmp(inp,"south",5)) go(SOUTH, &clarkson->room);
 		if (!strncmp(inp,"east",4)) go(EAST, &clarkson->room);
 		if (!strncmp(inp,"west",4)) go(WEST, &clarkson->room);
-		if (!strncmp(inp,"take",4)) take(clarkson);
-		if (!strncmp(inp,"drop",4)) drop(clarkson);
+		if (!strncmp(inp,"take",4)) take(clarkson->room->items, clarkson->inventory);
+		if (!strncmp(inp,"drop",4)) drop(clarkson->room->items, clarkson->inventory);
 		if (!strncmp(inp,"look",4)) watsup(clarkson->room);
 		if (!strncmp(inp,"inv",3)) showinv(clarkson->inventory);
 
