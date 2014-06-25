@@ -4,31 +4,8 @@
 #include <assert.h>
 #include "util.h"
 
-room_t * room = NULL;
-itemList_t * inventory = NULL;
-itemList_t * allItems = NULL;
-room_t * allRooms = NULL;
-
-int numRooms = 0;
-
-/* THIS SHOULD NOT BE HERE but lazy*/
-void addRoom(){
-	numRooms++;
-	allRooms = realloc(allRooms, sizeof(room_t) * numRooms);
-	allRooms[numRooms-1].items = malloc(sizeof(itemList_t));
-	allRooms[numRooms-1].items->itemArray = NULL;
-	roomInit(allRooms[numRooms-1]);
-}
-
-/* THIS SHOULD NOT BE HERE EITHER but lazy*/
-void addItem(itemList_t * inv){
-	(inv->capacity)++;
-	inv->itemArray = realloc(inv->itemArray, sizeof(item_t) * (inv->capacity));
-	inv->itemArray[(inv->capacity)-1] = NULL;
-}
-
 /* Loads data into structs */
-void init(){
+void init(world_t * clarkson){
 	/* This enum defines the sections of the datafile in order */
 	enum {
 		NONE,
@@ -47,10 +24,10 @@ void init(){
 	char str[160]; /* This limits the length of room descriptions */
 	str[159] = 0;
 
-	allItems = malloc(sizeof(itemList_t));
-	allItems->itemArray = NULL;
-	allItems->capacity = 0;
-	allItems->size = 0;
+	clarkson->allItems = malloc(sizeof(itemList_t));
+	clarkson->allItems->itemArray = NULL;
+	clarkson->allItems->capacity = 0;
+	clarkson->allItems->size = 0;
 
 	f = fopen("data", "r");
 	assert(f != NULL);
@@ -67,39 +44,38 @@ void init(){
 				break;
 
 			case ROOM_DESC:
-				if (x == numRooms) addRoom();
-				allRooms[x].description = getstring('\n', f);
+				if (x == clarkson->numRooms) addRoom(clarkson);
+				clarkson->allRooms[x].description = getstring('\n', f);
 				break;
 
 			case ROOM_LINKS:
 				assert(4 == fscanf(f, " %d %d %d %d\n", &n, &s, &e, &w));
-				allRooms[x].north = n != -1 ? allRooms + n : NULL;
-				allRooms[x].south = s != -1 ? allRooms + s : NULL;
-				allRooms[x].east  = e != -1 ? allRooms + e : NULL;
-				allRooms[x].west  = w != -1 ? allRooms + w : NULL;
+				clarkson->allRooms[x].north = n != -1 ? clarkson->allRooms + n : NULL;
+				clarkson->allRooms[x].south = s != -1 ? clarkson->allRooms + s : NULL;
+				clarkson->allRooms[x].east  = e != -1 ? clarkson->allRooms + e : NULL;
+				clarkson->allRooms[x].west  = w != -1 ? clarkson->allRooms + w : NULL;
 				break;
 
 			case OBJ_PROP:
-
-				if (allItems->size == allItems->capacity){
-					addItem(allItems);
+				if (clarkson->allItems->size == clarkson->allItems->capacity){
+					addItem(clarkson->allItems);
 				}
-				allItems->itemArray[x] = malloc(sizeof(item_t));
-				allItems->itemArray[x]->name = getstring('\n', f);
+				clarkson->allItems->itemArray[x] = malloc(sizeof(item_t));
+				clarkson->allItems->itemArray[x]->name = getstring('\n', f);
 				fscanf(f, "%d ", &x);
-				allItems->itemArray[x]->description = getstring('\n', f);
+				clarkson->allItems->itemArray[x]->description = getstring('\n', f);
 				fscanf(f, "%d ", &x);
 				fgets(str, 159, f);
-				allItems->size++;
+				clarkson->allItems->size++;
 				break;
 
 			case ROOM_OBJS:
 				assert(2 == fscanf(f, " %d %d\n", &rm, &itm));
-				if(allRooms[rm].items->size == allRooms[rm].items->capacity){
-					addItem(allRooms[rm].items);
+				if(clarkson->allRooms[rm].items->size == clarkson->allRooms[rm].items->capacity){
+					addItem(clarkson->allRooms[rm].items);
 				}
-				allRooms[rm].items->itemArray[allRooms[rm].items->size] = allItems->itemArray[itm];
-				(allRooms[rm].items->size)++;
+				clarkson->allRooms[rm].items->itemArray[clarkson->allRooms[rm].items->size] = clarkson->allItems->itemArray[itm];
+				(clarkson->allRooms[rm].items->size)++;
 				break;
 
 			default:
@@ -112,19 +88,19 @@ void init(){
 
 	fclose(f);
 
-	room = allRooms;
+	clarkson->room = clarkson->allRooms;
 
 	/* Initialize inventory */
-	inventory = malloc(sizeof(itemList_t));
-	inventory->itemArray = NULL;
-	inventory->capacity = 0;
-	inventory->size = 0;
+	clarkson->inventory = malloc(sizeof(itemList_t));
+	clarkson->inventory->itemArray = NULL;
+	clarkson->inventory->capacity = 0;
+	clarkson->inventory->size = 0;
 
 	return;
 }
 
 /* Describes the situation */
-int watsup(){
+int watsup(room_t * room){
 	/* The room description should be able to change even within the same room.
 	   Semi-random events should also be printed. (e.g. "Chris falls out of his chair")
 	   Additionally, it should list objects in the room. */
@@ -139,101 +115,108 @@ int watsup(){
 	return 0;
 }
 
-void go(compass c){
+void go(compass c, room_t ** room){
 	room_t * n = NULL;
 
 	switch (c) {
-	case NORTH: n = room->north; break;
-	case SOUTH: n = room->south; break;
-	case EAST:  n = room->east;  break;
-	case WEST:  n = room->west;  break;
+	case NORTH: n = (*room)->north; break;
+	case SOUTH: n = (*room)->south; break;
+	case EAST:  n = (*room)->east;  break;
+	case WEST:  n = (*room)->west;  break;
 	}
 
 	if (n == NULL) {
 		puts("You cannot go that way.");
 	} else {
-		room = n;
-		watsup();
+		*room = n;
+		watsup(*room);
 	}
 }
 
-void take(){
-	if (room->items->size > 0){
-		if (inventory->size == inventory->capacity){
-			addItem(inventory);
+void take(world_t * clarkson){
+	if (clarkson->room->items->size > 0){
+		if (clarkson->inventory->size == clarkson->inventory->capacity){
+			addItem(clarkson->inventory);
 		}
-		inventory->itemArray[inventory->size] = room->items->itemArray[(room->items->size)-1];
-		(inventory->size)++;
-		room->items->itemArray[(room->items->size)-1] = NULL;
-		(room->items->size)--;
+		clarkson->inventory->itemArray[clarkson->inventory->size] = clarkson->room->items->itemArray[(clarkson->room->items->size)-1];
+		(clarkson->inventory->size)++;
+		clarkson->room->items->itemArray[(clarkson->room->items->size)-1] = NULL;
+		(clarkson->room->items->size)--;
 		puts("Taken.");
 	}else puts("Nothing here.");
 }
 
-void drop(){
-	if (inventory->size > 0){
-		if(room->items->size == room->items->capacity){
-			addItem(room->items);
+void drop(world_t * clarkson){
+	if (clarkson->inventory->size > 0){
+		if(clarkson->room->items->size == clarkson->room->items->capacity){
+			addItem(clarkson->room->items);
 		}
-		room->items->itemArray[room->items->size] = inventory->itemArray[(inventory->size)-1];
-		(room->items->size)++;
-		inventory->itemArray[(inventory->size)-1] = NULL;
-		(inventory->size)--;
+		clarkson->room->items->itemArray[clarkson->room->items->size] = clarkson->inventory->itemArray[(clarkson->inventory->size)-1];
+		(clarkson->room->items->size)++;
+		clarkson->inventory->itemArray[(clarkson->inventory->size)-1] = NULL;
+		(clarkson->inventory->size)--;
 	}else puts("Your inventory is empty.");
 }
 
-void showinv(){
+void showinv(itemList_t * inv){
 	int x;
-	for (x = 0; x < (inventory->size); x++){
-		if (inventory->itemArray[x] != NULL) puts(inventory->itemArray[x]->name);
+	for (x = 0; x < (inv->size); x++){
+		if (inv->itemArray[x] != NULL) puts(inv->itemArray[x]->name);
 	}
 }
 
 int main(){
-	int dead=0,win=0,quit=0;
+	int quit=0;
+	world_t * clarkson;
 	char inp[80];
 	inp[79] = 0;
 
+	/* Experimental and possibly stupid */
+	clarkson = malloc(sizeof(world_t));
+
+	worldInit(clarkson);
+
 	/* Load data, create world */
-	init();
-	watsup();
+	init(clarkson);
+	watsup(clarkson->room);
 
 	/* loop runs watsup() and inner loop takes commands until one works */
-	while(!dead && !win && !quit){
+	while(!quit){
 		printf("What do? ");
 		scanf ("%79s",inp); /* Get commands */
 
 		if (!strncmp(inp,"quit",4)) quit=1;
-		if (!strncmp(inp,"north",5)) go(NORTH);
-		if (!strncmp(inp,"south",5)) go(SOUTH);
-		if (!strncmp(inp,"east",4)) go(EAST);
-		if (!strncmp(inp,"west",4)) go(WEST);
-		if (!strncmp(inp,"take",4)) take();
-		if (!strncmp(inp,"drop",4)) drop();
-		if (!strncmp(inp,"look",4)) watsup();
-		if (!strncmp(inp,"inv",3)) showinv();
+		if (!strncmp(inp,"north",5)) go(NORTH, &clarkson->room);
+		if (!strncmp(inp,"south",5)) go(SOUTH, &clarkson->room);
+		if (!strncmp(inp,"east",4)) go(EAST, &clarkson->room);
+		if (!strncmp(inp,"west",4)) go(WEST, &clarkson->room);
+		if (!strncmp(inp,"take",4)) take(clarkson);
+		if (!strncmp(inp,"drop",4)) drop(clarkson);
+		if (!strncmp(inp,"look",4)) watsup(clarkson->room);
+		if (!strncmp(inp,"inv",3)) showinv(clarkson->inventory);
 
 		/* This is where a parse function would be called, and it would call other functons accordingly.
 		   To get started, let's implement "go <dir>, take <obj>, look, eat <inv item>. */
 	}
 
 	/* free() everything */
-	for (quit = 0; quit < allItems->capacity; quit++){
-		free(allItems->itemArray[quit]->name);
-		free(allItems->itemArray[quit]->description);
-		free(allItems->itemArray[quit]);
+	for (quit = 0; quit < clarkson->allItems->capacity; quit++){
+		free(clarkson->allItems->itemArray[quit]->name);
+		free(clarkson->allItems->itemArray[quit]->description);
+		free(clarkson->allItems->itemArray[quit]);
 	}
-	free(allItems->itemArray);
-	free(allItems);
+	free(clarkson->allItems->itemArray);
+	free(clarkson->allItems);
 
-	for (quit = 0; quit < numRooms; quit++){
-		free(allRooms[quit].items->itemArray);
-		free(allRooms[quit].items);
-		free(allRooms[quit].description);
+	for (quit = 0; quit < clarkson->numRooms; quit++){
+		free(clarkson->allRooms[quit].items->itemArray);
+		free(clarkson->allRooms[quit].items);
+		free(clarkson->allRooms[quit].description);
 	}
-	free(allRooms);
-	free(inventory->itemArray);
-	free(inventory);
+	free(clarkson->allRooms);
+	free(clarkson->inventory->itemArray);
+	free(clarkson->inventory);
+	free(clarkson);
 
 	return 0;
 }
