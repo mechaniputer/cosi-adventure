@@ -38,7 +38,8 @@ typedef enum {
 	NORTH,
 	SOUTH,
 	EAST,
-	WEST
+	WEST,
+	EAST_BY_EAST_WEST
 } compass;
 
 /* Reads a string from given file 'f' until delimiter 'd' or EOF is found

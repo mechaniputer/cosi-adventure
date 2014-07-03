@@ -2,7 +2,10 @@
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <ctype.h>
 #include "util.h"
+
+#define MAX_CMD_ARGS 10
 
 /* Loads data into structs */
 void init(world_t * clarkson){
@@ -133,28 +136,56 @@ void go(compass c, room_t ** room){
 	}
 }
 
-void take(itemList_t * roomItems, itemList_t * inventory){
+void take(itemList_t * roomItems, itemList_t * inventory, char * what){
+	int i;
+	item_t * tmp;
+
 	if (roomItems->size > 0){
-		if (inventory->size == inventory->capacity){
-			addItem(inventory);
+		for (i = 0; i < roomItems->size; i++) {
+			if (!strcmp(roomItems->itemArray[i]->name, what)) {
+				tmp = roomItems->itemArray[i];
+				roomItems->itemArray[i] = roomItems->itemArray[roomItems->size-1];
+				roomItems->itemArray[roomItems->size-1] = tmp;
+				break;
+			}
 		}
-		inventory->itemArray[inventory->size] = roomItems->itemArray[(roomItems->size)-1];
-		(inventory->size)++;
-		roomItems->itemArray[(roomItems->size)-1] = NULL;
-		(roomItems->size)--;
-		puts("Taken.");
+
+		if (i != roomItems->size) {
+			if (inventory->size == inventory->capacity){
+				addItem(inventory);
+			}
+			inventory->itemArray[inventory->size] = roomItems->itemArray[roomItems->size-1];
+			inventory->size++;
+			roomItems->itemArray[roomItems->size-1] = NULL;
+			roomItems->size--;
+			puts("Taken.");
+		} else puts("I am not sure what that is.");
 	}else puts("Nothing here.");
 }
 
-void drop(itemList_t * roomItems, itemList_t * inventory){
+void drop(itemList_t * roomItems, itemList_t * inventory, char * what){
+	int i;
+	item_t * tmp;
+
 	if (inventory->size > 0){
-		if(roomItems->size == roomItems->capacity){
-			addItem(roomItems);
+		for (i = 0; i < inventory->size; i++) {
+			if (!strcmp(inventory->itemArray[i]->name, what)) {
+				tmp = inventory->itemArray[i];
+				inventory->itemArray[i] = inventory->itemArray[inventory->size-1];
+				inventory->itemArray[inventory->size-1] = tmp;
+				break;
+			}
 		}
-		roomItems->itemArray[roomItems->size] = inventory->itemArray[(inventory->size)-1];
-		(roomItems->size)++;
-		inventory->itemArray[(inventory->size)-1] = NULL;
-		(inventory->size)--;
+
+		if (i != roomItems->size) {
+			if(roomItems->size == roomItems->capacity){
+				addItem(roomItems);
+			}
+			roomItems->itemArray[roomItems->size] = inventory->itemArray[inventory->size-1];
+			roomItems->size++;
+			inventory->itemArray[inventory->size-1] = NULL;
+			inventory->size--;
+		}
 	}else puts("Your inventory is empty.");
 }
 
@@ -165,9 +196,37 @@ void showinv(itemList_t * inv){
 	}
 }
 
+void parse(char * inp, char cmd[MAX_CMD_ARGS][80])
+{
+	int i;
+	char * start;
+
+	for (i = 0; i < MAX_CMD_ARGS && *inp; i++) {
+		while (isspace(*inp)) inp++;
+		start = inp;
+		while (!isspace(*inp) && *inp) inp++;
+		memcpy(cmd[i], start, inp-start);
+		cmd[i][inp-start] = 0;
+	}
+
+	for (; i < MAX_CMD_ARGS; i++) {
+		cmd[i][0] = 0;
+	}
+}
+
+compass direction(char * dir)
+{
+	if (!strcmp(dir, "east")) return EAST;
+	if (!strcmp(dir, "west")) return WEST;
+	if (!strcmp(dir, "north")) return NORTH;
+	if (!strcmp(dir, "south")) return SOUTH;
+	return EAST_BY_EAST_WEST;
+}
+
 int main(){
 	int quit=0;
 	world_t * clarkson;
+	char cmd[MAX_CMD_ARGS][80];
 	char inp[80];
 	inp[79] = 0;
 
@@ -182,17 +241,19 @@ int main(){
 	/* loop runs watsup() and inner loop takes commands until one works */
 	while(!quit){
 		printf("What do? ");
-		scanf ("%79s",inp); /* Get commands */
+		fgets(inp, 79, stdin); /* Get commands */
+		parse(inp, cmd);
 
-		if (!strncmp(inp,"quit",4)) quit=1;
-		if (!strncmp(inp,"north",5)) go(NORTH, &clarkson->room);
-		if (!strncmp(inp,"south",5)) go(SOUTH, &clarkson->room);
-		if (!strncmp(inp,"east",4)) go(EAST, &clarkson->room);
-		if (!strncmp(inp,"west",4)) go(WEST, &clarkson->room);
-		if (!strncmp(inp,"take",4)) take(clarkson->room->items, clarkson->inventory);
-		if (!strncmp(inp,"drop",4)) drop(clarkson->room->items, clarkson->inventory);
-		if (!strncmp(inp,"look",4)) watsup(clarkson->room);
-		if (!strncmp(inp,"inv",3)) showinv(clarkson->inventory);
+		if (!strcmp(cmd[0],"quit")) quit=1;
+		if (!strcmp(cmd[0],"north")) go(NORTH, &clarkson->room);
+		if (!strcmp(cmd[0],"south")) go(SOUTH, &clarkson->room);
+		if (!strcmp(cmd[0],"east")) go(EAST, &clarkson->room);
+		if (!strcmp(cmd[0],"west")) go(WEST, &clarkson->room);
+		if (!strcmp(cmd[0],"go")) go(direction(cmd[1]), &clarkson->room);
+		if (!strcmp(cmd[0],"take")) take(clarkson->room->items, clarkson->inventory, cmd[1]);
+		if (!strcmp(cmd[0],"drop")) drop(clarkson->room->items, clarkson->inventory, cmd[1]);
+		if (!strcmp(cmd[0],"look")) watsup(clarkson->room);
+		if (!strcmp(cmd[0],"inv")) showinv(clarkson->inventory);
 
 		/* This is where a parse function would be called, and it would call other functons accordingly.
 		   To get started, let's implement "go <dir>, take <obj>, look, eat <inv item>. */
