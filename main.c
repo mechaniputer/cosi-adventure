@@ -136,57 +136,52 @@ void go(compass c, room_t ** room){
 	}
 }
 
-void take(itemList_t * roomItems, itemList_t * inventory, char * what){
-	int i;
+int transfer(itemList_t * from, itemList_t * to, char * what){
+	int i, last;
 	item_t * tmp;
 
-	if (roomItems->size > 0){
-		for (i = 0; i < roomItems->size; i++) {
-			if (!strcmp(roomItems->itemArray[i]->name, what)) {
-				tmp = roomItems->itemArray[i];
-				roomItems->itemArray[i] = roomItems->itemArray[roomItems->size-1];
-				roomItems->itemArray[roomItems->size-1] = tmp;
+	if (from->size > 0){
+		last = from->size - 1;
+
+		/* Swap the item in 'from' to the end of the item list */
+		for (i = 0; i < from->size; i++){
+			if (!strcmp(from->itemArray[i]->name, what)){
+				tmp = from->itemArray[i];
+				from->itemArray[i] = from->itemArray[last];
+				from->itemArray[last] = tmp;
 				break;
 			}
 		}
 
-		if (i != roomItems->size) {
-			if (inventory->size == inventory->capacity){
-				addItem(inventory);
+		if (i != from->size) {
+			/* Move the item at the end of 'from' to the end of 'to' */
+			if (to->size == to->capacity){
+				addItem(to);
 			}
-			inventory->itemArray[inventory->size] = roomItems->itemArray[roomItems->size-1];
-			inventory->size++;
-			roomItems->itemArray[roomItems->size-1] = NULL;
-			roomItems->size--;
-			puts("Taken.");
-		} else puts("I am not sure what that is.");
-	}else puts("Nothing here.");
+			to->itemArray[to->size] = from->itemArray[last];
+			from->itemArray[last] = NULL;
+			to->size++;
+			from->size--;
+			return 1;
+		}
+	}
+	return 0;
+}
+
+void take(itemList_t * roomItems, itemList_t * inventory, char * what){
+	if (transfer(roomItems, inventory, what)){
+		puts("Taken.");
+	}else{
+		puts("I do not think such a thing is here.");
+	}
 }
 
 void drop(itemList_t * roomItems, itemList_t * inventory, char * what){
-	int i;
-	item_t * tmp;
-
-	if (inventory->size > 0){
-		for (i = 0; i < inventory->size; i++) {
-			if (!strcmp(inventory->itemArray[i]->name, what)) {
-				tmp = inventory->itemArray[i];
-				inventory->itemArray[i] = inventory->itemArray[inventory->size-1];
-				inventory->itemArray[inventory->size-1] = tmp;
-				break;
-			}
-		}
-
-		if (i != roomItems->size) {
-			if(roomItems->size == roomItems->capacity){
-				addItem(roomItems);
-			}
-			roomItems->itemArray[roomItems->size] = inventory->itemArray[inventory->size-1];
-			roomItems->size++;
-			inventory->itemArray[inventory->size-1] = NULL;
-			inventory->size--;
-		}
-	}else puts("Your inventory is empty.");
+	if (transfer(inventory, roomItems, what)){
+		puts("Dropped.");
+	}else{
+		puts("I am not sure that you have such a thing in your possession.");
+	}
 }
 
 void showinv(itemList_t * inv){
