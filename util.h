@@ -46,6 +46,9 @@ typedef enum {
    Returns an allocated string read from file */
 char * getstring(char d, FILE * f);
 
+/* Case insensitive string equivalence. Returns 1 when strings equal, 0 if not */
+int striequ(const char *, const char *);
+
 /* Initializes everything in a room struct to NULL */
 void roomInit(room_t newroom);
 

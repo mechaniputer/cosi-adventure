@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <ctype.h>
 #include "util.h"
 
 char * getstring(char d, FILE * f) {
@@ -15,6 +16,14 @@ char * getstring(char d, FILE * f) {
 	}
 	buf[i] = 0;
 	return buf;
+}
+
+int striequ(const char * a, const char * b){
+	while (*a) {
+		if (tolower(*a) != tolower(*b)) return 0;
+		a++; b++;
+	}
+	return *a == *b;
 }
 
 void roomInit(room_t newroom){

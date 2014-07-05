@@ -145,7 +145,7 @@ int transfer(itemList_t * from, itemList_t * to, char * what){
 
 		/* Swap the item in 'from' to the end of the item list */
 		for (i = 0; i < from->size; i++){
-			if (!strcmp(from->itemArray[i]->name, what)){
+			if (striequ(from->itemArray[i]->name, what)){
 				tmp = from->itemArray[i];
 				from->itemArray[i] = from->itemArray[last];
 				from->itemArray[last] = tmp;
@@ -211,10 +211,10 @@ void parse(char * inp, char cmd[MAX_CMD_ARGS][80])
 
 compass direction(char * dir)
 {
-	if (!strcmp(dir, "east")) return EAST;
-	if (!strcmp(dir, "west")) return WEST;
-	if (!strcmp(dir, "north")) return NORTH;
-	if (!strcmp(dir, "south")) return SOUTH;
+	if (striequ(dir, "east")) return EAST;
+	if (striequ(dir, "west")) return WEST;
+	if (striequ(dir, "north")) return NORTH;
+	if (striequ(dir, "south")) return SOUTH;
 	return EAST_BY_EAST_WEST;
 }
 
@@ -239,16 +239,16 @@ int main(){
 		fgets(inp, 79, stdin); /* Get commands */
 		parse(inp, cmd);
 
-		if (!strcmp(cmd[0],"quit")) quit=1;
-		if (!strcmp(cmd[0],"north")) go(NORTH, &clarkson->room);
-		if (!strcmp(cmd[0],"south")) go(SOUTH, &clarkson->room);
-		if (!strcmp(cmd[0],"east")) go(EAST, &clarkson->room);
-		if (!strcmp(cmd[0],"west")) go(WEST, &clarkson->room);
-		if (!strcmp(cmd[0],"go")) go(direction(cmd[1]), &clarkson->room);
-		if (!strcmp(cmd[0],"take")) take(clarkson->room->items, clarkson->inventory, cmd[1]);
-		if (!strcmp(cmd[0],"drop")) drop(clarkson->room->items, clarkson->inventory, cmd[1]);
-		if (!strcmp(cmd[0],"look")) watsup(clarkson->room);
-		if (!strcmp(cmd[0],"inv")) showinv(clarkson->inventory);
+		if (striequ(cmd[0],"quit")) quit=1;
+		if (striequ(cmd[0],"north")) go(NORTH, &clarkson->room);
+		if (striequ(cmd[0],"south")) go(SOUTH, &clarkson->room);
+		if (striequ(cmd[0],"east")) go(EAST, &clarkson->room);
+		if (striequ(cmd[0],"west")) go(WEST, &clarkson->room);
+		if (striequ(cmd[0],"go")) go(direction(cmd[1]), &clarkson->room);
+		if (striequ(cmd[0],"take")) take(clarkson->room->items, clarkson->inventory, cmd[1]);
+		if (striequ(cmd[0],"drop")) drop(clarkson->room->items, clarkson->inventory, cmd[1]);
+		if (striequ(cmd[0],"look")) watsup(clarkson->room);
+		if (striequ(cmd[0],"inv")) showinv(clarkson->inventory);
 
 		/* This is where a parse function would be called, and it would call other functons accordingly.
 		   To get started, let's implement "go <dir>, take <obj>, look, eat <inv item>. */
