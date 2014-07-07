@@ -126,6 +126,7 @@ void go(compass c, room_t ** room){
 	case SOUTH: n = (*room)->south; break;
 	case EAST:  n = (*room)->east;  break;
 	case WEST:  n = (*room)->west;  break;
+	default: ;
 	}
 
 	if (n == NULL) {

@@ -1,4 +1,4 @@
-CFLAGS = --std=c89 -pedantic -Wall -Werror -Wno-switch -g
+CFLAGS = --std=c89 -pedantic -Wall -Werror -g
 TARGET = cosi-adventure
 
 $(TARGET): main.o util.o
