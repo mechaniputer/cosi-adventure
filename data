@@ -17,15 +17,19 @@
 -1 begin object properties [take eat lock]
 0 pizza
 0 There is free pizza on the table.
+0 It is cold and cardboard-like. You see a fly on one slice. It is probably still edible.
 0 1 1 0
 1 ITL door
 1 The ITL door is unlocked
+1 A sliding door made mostly of glass.
 1 0 0 1
 2 Moxie
 2 There is Moxie in the fridge.
+2 A strange combination of licorice and vigor.
 2 1 1 0
 3 chair
 3 There is a rolling chair.
+3 It swivels.
 3 1 0 0
 -1 begin room-object lists
 0 0 0

@@ -11,6 +11,7 @@ typedef struct world world_t;
 struct item {
 	char * name;
 	char * description;
+	char * examine;
 	char ** actions;
 };
 

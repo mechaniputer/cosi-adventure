@@ -68,6 +68,8 @@ void init(world_t * clarkson){
 				fscanf(f, "%d ", &x);
 				clarkson->allItems->itemArray[x]->description = getstring('\n', f);
 				fscanf(f, "%d ", &x);
+				clarkson->allItems->itemArray[x]->examine = getstring('\n', f);
+				fscanf(f, "%d ", &x);
 				fgets(str, 159, f);
 				clarkson->allItems->size++;
 				break;
@@ -192,6 +194,24 @@ void showinv(itemList_t * inv){
 	}
 }
 
+void examine(itemList_t * ila, itemList_t * ilb, const char * what){
+	int i;
+
+	do{
+		for (i = 0; i < ila->size; i++){
+			if (striequ(ila->itemArray[i]->name, what)){
+				puts(ila->itemArray[i]->examine);
+				return;
+			}
+		}
+
+		ila = ilb;
+		ilb = NULL;
+	}while (ila != NULL);
+
+	puts("You examine that which is not there, and ponder the mysteries of existence.");
+}
+
 void parse(char * inp, char cmd[MAX_CMD_ARGS][80])
 {
 	int i;
@@ -250,6 +270,7 @@ int main(){
 		if (striequ(cmd[0],"drop")) drop(clarkson->room->items, clarkson->inventory, cmd[1]);
 		if (striequ(cmd[0],"look")) watsup(clarkson->room);
 		if (striequ(cmd[0],"inv")) showinv(clarkson->inventory);
+		if (striequ(cmd[0],"examine")) examine(clarkson->inventory, clarkson->room->items, cmd[1]);
 
 		/* This is where a parse function would be called, and it would call other functons accordingly.
 		   To get started, let's implement "go <dir>, take <obj>, look, eat <inv item>. */
