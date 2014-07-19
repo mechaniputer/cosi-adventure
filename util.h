@@ -1,12 +1,13 @@
 #ifndef UTIL_H
 #define UTIL_H
 
-#include <stdio.h>
-
 typedef struct room room_t;
 typedef struct item item_t;
 typedef struct itemList itemList_t;
 typedef struct world world_t;
+
+#include <stdio.h>
+#include "trigger.h"
 
 struct item {
 	char * name;
@@ -33,6 +34,8 @@ struct world {
 	room_t * room;
 	itemList_t * inventory;
 	itemList_t * allItems;
+	trigger_t * allTrigs;
+	int numTrigs;
 };
 
 typedef enum {
@@ -58,6 +61,12 @@ void addItem(itemList_t * inv);
 
 /* Adds a room to a world */
 void addRoom(world_t * clarkson);
+
+/* Adds a trigger to a world */
+void addTrig(world_t * clarkson);
+
+/* Links to rooms together */
+void linkRoom(world_t * clarkson, int a, int b, compass dir);
 
 /* Initializes a world to NULL and 0 rooms */
 void worldInit(world_t * clarkson);

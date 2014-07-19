@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include "util.h"
@@ -51,10 +52,41 @@ void addRoom(world_t * clarkson){
 	roomInit(clarkson->allRooms[clarkson->numRooms-1]);
 }
 
+void addTrig(world_t * clarkson){
+	clarkson->numTrigs++;
+	clarkson->allTrigs = realloc(clarkson->allTrigs, sizeof(trigger_t) * clarkson->numTrigs);
+	init_trigger(clarkson->allTrigs + clarkson->numTrigs - 1);
+}
+
+void linkRoom(world_t * clarkson, int a, int b, compass dir){
+	switch (dir){
+	case NORTH:
+		clarkson->allRooms[a].north = clarkson->allRooms + b;
+		clarkson->allRooms[b].south = clarkson->allRooms + a;
+		break;
+	case SOUTH:
+		clarkson->allRooms[a].south = clarkson->allRooms + b;
+		clarkson->allRooms[b].north = clarkson->allRooms + a;
+		break;
+	case EAST:
+		clarkson->allRooms[a].east = clarkson->allRooms + b;
+		clarkson->allRooms[b].west = clarkson->allRooms + a;
+		break;
+	case WEST:
+		clarkson->allRooms[a].west = clarkson->allRooms + b;
+		clarkson->allRooms[b].east = clarkson->allRooms + a;
+		break;
+	default:
+		assert(0);
+	}
+}
+
 void worldInit(world_t * clarkson){
 	clarkson->allRooms = NULL;
 	clarkson->numRooms = 0;
 	clarkson->room = NULL;
 	clarkson->inventory = NULL;
 	clarkson->allItems = NULL;
+	clarkson->allTrigs = NULL;
+	clarkson->numTrigs = 0;
 }

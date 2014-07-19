@@ -3,11 +3,22 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <ctype.h>
+#include <time.h>
 #include "util.h"
 
 #define MAX_CMD_ARGS 10
 
+compass direction(char * dir)
+{
+	if (striequ(dir, "east")) return EAST;
+	if (striequ(dir, "west")) return WEST;
+	if (striequ(dir, "north")) return NORTH;
+	if (striequ(dir, "south")) return SOUTH;
+	return EAST_BY_EAST_WEST;
+}
+
 /* Loads data into structs */
+/* TODO this function should probably be split up to better manage it */
 void init(world_t * clarkson){
 	/* This enum defines the sections of the datafile in order */
 	enum {
@@ -15,14 +26,20 @@ void init(world_t * clarkson){
 		ROOM_DESC,
 		ROOM_LINKS,
 		OBJ_PROP,
-		ROOM_OBJS
+		ROOM_OBJS,
+		TRIGGERS
 	} section = NONE;
 
 	int x;
 	int rv;
 	int n, s, e, w;
 	int rm, itm;
+	char ch;
 	FILE * f;
+	con_type ctype;
+	res_type rtype;
+	condition_t * con;
+	result_t * res;
 
 	char str[160]; /* This limits the length of room descriptions */
 	str[159] = 0;
@@ -48,6 +65,7 @@ void init(world_t * clarkson){
 
 			case ROOM_DESC:
 				if (x == clarkson->numRooms) addRoom(clarkson);
+				assert(x < clarkson->numRooms);
 				clarkson->allRooms[x].description = getstring('\n', f);
 				break;
 
@@ -63,14 +81,23 @@ void init(world_t * clarkson){
 				if (clarkson->allItems->size == clarkson->allItems->capacity){
 					addItem(clarkson->allItems);
 				}
+				assert(clarkson->allItems->size == x);
+
 				clarkson->allItems->itemArray[x] = malloc(sizeof(item_t));
 				clarkson->allItems->itemArray[x]->name = getstring('\n', f);
+
 				fscanf(f, "%d ", &x);
+				assert(clarkson->allItems->size == x);
 				clarkson->allItems->itemArray[x]->description = getstring('\n', f);
+
 				fscanf(f, "%d ", &x);
+				assert(clarkson->allItems->size == x);
 				clarkson->allItems->itemArray[x]->examine = getstring('\n', f);
+
 				fscanf(f, "%d ", &x);
+				assert(clarkson->allItems->size == x);
 				fgets(str, 159, f);
+
 				clarkson->allItems->size++;
 				break;
 
@@ -81,6 +108,54 @@ void init(world_t * clarkson){
 				}
 				clarkson->allRooms[rm].items->itemArray[clarkson->allRooms[rm].items->size] = clarkson->allItems->itemArray[itm];
 				(clarkson->allRooms[rm].items->size)++;
+				break;
+
+			case TRIGGERS:
+				if (x == clarkson->numTrigs) addTrig(clarkson);
+				assert(x < clarkson->numTrigs);
+
+				assert(2 == fscanf(f, "%c %159s ", &ch, str));
+				assert(ch == 'r' || ch == 'c');
+
+				if (ch == 'r'){
+					/* Add result */
+					rtype = get_rtype(str);
+					res = clarkson->allTrigs[x].res + clarkson->allTrigs[x].next_res;
+					res->type = rtype;
+					clarkson->allTrigs[x].next_res++;
+
+					switch (rtype){
+					case R_LINK:
+						assert(3 == fscanf(f, "%d %d %6s ", &res->param[0].i, &res->param[1].i, str));
+						res->param[2].i = direction(str);
+						assert(res->param[2].i != EAST_BY_EAST_WEST);
+						break;
+					case R_ECHO:
+						res->param[0].s = getstring('\n', f);
+						break;
+					case R_ENABLE:
+					case R_DISABLE:
+						assert(1 == fscanf(f, "%d ", &res->param[0].i));
+						break;
+					default:
+						assert(0);
+					}
+				}else{
+					/* Add condition */
+					ctype = get_ctype(str);
+					con = clarkson->allTrigs[x].con + clarkson->allTrigs[x].next_con;
+					con->type = ctype;
+					clarkson->allTrigs[x].next_con++;
+
+					switch (ctype){
+					case C_IN:
+					case C_RAND:
+						assert(1 == fscanf(f, "%d ", &con->param));
+						break;
+					default:
+						assert(0);
+					}
+				}
 				break;
 
 			default:
@@ -230,15 +305,6 @@ void parse(char * inp, char cmd[MAX_CMD_ARGS][80])
 	}
 }
 
-compass direction(char * dir)
-{
-	if (striequ(dir, "east")) return EAST;
-	if (striequ(dir, "west")) return WEST;
-	if (striequ(dir, "north")) return NORTH;
-	if (striequ(dir, "south")) return SOUTH;
-	return EAST_BY_EAST_WEST;
-}
-
 int main(){
 	int quit=0;
 	world_t * clarkson;
@@ -246,8 +312,9 @@ int main(){
 	char inp[80];
 	inp[79] = 0;
 
-	clarkson = malloc(sizeof(world_t));
+	srand(time(NULL));
 
+	clarkson = malloc(sizeof(world_t));
 	worldInit(clarkson);
 
 	/* Load data, create world */
@@ -272,8 +339,7 @@ int main(){
 		if (striequ(cmd[0],"inv")) showinv(clarkson->inventory);
 		if (striequ(cmd[0],"examine")) examine(clarkson->inventory, clarkson->room->items, cmd[1]);
 
-		/* This is where a parse function would be called, and it would call other functons accordingly.
-		   To get started, let's implement "go <dir>, take <obj>, look, eat <inv item>. */
+		trig_verify(clarkson);
 	}
 
 	/* free() everything */
