@@ -8,6 +8,7 @@ typedef struct world world_t;
 
 #include <stdio.h>
 #include "trigger.h"
+#include "load.h"
 
 struct item {
 	char * name;
@@ -51,7 +52,7 @@ typedef enum {
 char * getstring(char d, FILE * f);
 
 /* Case insensitive string equivalence. Returns 1 when strings equal, 0 if not */
-int striequ(const char *, const char *);
+int striEqu(const char *, const char *);
 
 /* Initializes everything in a room struct to NULL */
 void roomInit(room_t newroom);
@@ -71,4 +72,8 @@ void linkRoom(world_t * clarkson, int a, int b, compass dir);
 /* Initializes a world to NULL and 0 rooms */
 void worldInit(world_t * clarkson);
 
+/* return compass direction based on user input for use by other functions */
+compass direction(char * dir);
+
 #endif
+

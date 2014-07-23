@@ -49,14 +49,15 @@ struct trigger{
 };
 
 /* These functions take a name of a condition/result and return the type */
-con_type get_ctype(const char *);
-res_type get_rtype(const char *);
+con_type getCtype(const char *);
+res_type getRtype(const char *);
 
 /* Initializes the trigger */
-void init_trigger(trigger_t *);
+void initTrigger(trigger_t *);
 
 /* This function checks the list of triggers to see if any have their
    conditions fullfilled */
-int trig_verify(world_t *);
+int trigVerify(world_t *);
 
 #endif
+

@@ -3,7 +3,7 @@
 #include <ctype.h>
 #include "util.h"
 
-char * getstring(char d, FILE * f) {
+char * getstring(char d, FILE * f){
 	char c;
 	size_t i = 0, size = 20;
 	char * buf = malloc(size+1);
@@ -19,7 +19,7 @@ char * getstring(char d, FILE * f) {
 	return buf;
 }
 
-int striequ(const char * a, const char * b){
+int striEqu(const char * a, const char * b){
 	while (*a) {
 		if (tolower(*a) != tolower(*b)) return 0;
 		a++; b++;
@@ -55,7 +55,7 @@ void addRoom(world_t * clarkson){
 void addTrig(world_t * clarkson){
 	clarkson->numTrigs++;
 	clarkson->allTrigs = realloc(clarkson->allTrigs, sizeof(trigger_t) * clarkson->numTrigs);
-	init_trigger(clarkson->allTrigs + clarkson->numTrigs - 1);
+	initTrigger(clarkson->allTrigs + clarkson->numTrigs - 1);
 }
 
 void linkRoom(world_t * clarkson, int a, int b, compass dir){
@@ -90,3 +90,12 @@ void worldInit(world_t * clarkson){
 	clarkson->allTrigs = NULL;
 	clarkson->numTrigs = 0;
 }
+
+compass direction(char * dir){
+	if (striEqu(dir, "east")) return EAST;
+	if (striEqu(dir, "west")) return WEST;
+	if (striEqu(dir, "north")) return NORTH;
+	if (striEqu(dir, "south")) return SOUTH;
+	return EAST_BY_EAST_WEST;
+}
+

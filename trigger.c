@@ -4,22 +4,22 @@
 #include "util.h"
 #include "trigger.h"
 
-/* get_ctype and get_rtype could probably be consolidated */
-con_type get_ctype(const char * str){
+/* getCtype and getRtype could probably be consolidated */
+con_type getCtype(const char * str){
 	static const char * names[]={
 		"in",
 		"rand"
 	};
 
 	int i;
-	for (i = 0; i < C_MAX; i++){
+	for (i = 0; i < C_MAX; i++) {
 		if (!strcmp(names[i], str)) return i;
 	}
 
 	return C_NONE;
 }
 
-res_type get_rtype(const char * str){
+res_type getRtype(const char * str){
 	static const char * names[]={
 		"link",
 		"echo",
@@ -28,30 +28,30 @@ res_type get_rtype(const char * str){
 	};
 
 	int i;
-	for (i = 0; i < R_MAX; i++){
+	for (i = 0; i < R_MAX; i++) {
 		if (!strcmp(names[i], str)) return i;
 	}
 
 	return R_NONE;
 }
 
-void init_trigger(trigger_t * t){
+void initTrigger(trigger_t * t){
 	int i;
 
 	t->enabled = 1;
 	t->next_res = 0;
 	t->next_con = 0;
 
-	for (i = 0; i < MAX_CON_CNT; i++){
+	for (i = 0; i < MAX_CON_CNT; i++) {
 		t->con[i].type = C_NONE;
 	}
 
-	for (i = 0; i < MAX_RES_CNT; i++){
+	for (i = 0; i < MAX_RES_CNT; i++) {
 		t->res[i].type = R_NONE;
 	}
 }
 
-static int cond_good(const condition_t * c, world_t * w){
+static int condGood(const condition_t * c, world_t * w) {
 	int rm = w->room - w->allRooms;
 	assert(rm < w->numRooms && rm >= 0);
 
@@ -64,7 +64,7 @@ static int cond_good(const condition_t * c, world_t * w){
 	return 0;
 }
 
-static void resulting(const result_t * r, world_t * w){
+static void resulting(const result_t * r, world_t * w) {
 	switch (r->type){
 	case R_NONE:
 		break;
@@ -83,14 +83,14 @@ static void resulting(const result_t * r, world_t * w){
 	}
 }
 
-int trig_verify(world_t * w){
+int trigVerify(world_t * w){
 	int i, j, cnt = 0;
 
-	for (i = 0; i < w->numTrigs; i++){
+	for (i = 0; i < w->numTrigs; i++) {
 		if (w->allTrigs[i].enabled){
 			/* Check all conditions */
-			for (j = 0; j < MAX_CON_CNT; j++){
-				if (!cond_good(&w->allTrigs[i].con[j], w)) break;
+			for (j = 0; j < MAX_CON_CNT; j++) {
+				if (!condGood(&w->allTrigs[i].con[j], w)) break;
 			}
 
 			if (j == MAX_CON_CNT) {
@@ -105,3 +105,4 @@ int trig_verify(world_t * w){
 
 	return cnt;
 }
+
