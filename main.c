@@ -16,7 +16,7 @@ void init(world_t * clarkson){
 	clarkson->allItems->itemArray = NULL;
 	clarkson->allItems->capacity = 0;
 	clarkson->allItems->size = 0;
-	
+
 	/* This was a huge block of code, so I put it in load.h */
 	loadDataFile(clarkson);
 
