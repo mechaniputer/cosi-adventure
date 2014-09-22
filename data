@@ -1,29 +1,41 @@
 -1 begin room descriptions
 0 You are in COSI. To the east is the ITL. There is an exit south.
 1 You are in the ITL. There is a class right now, and everyone is looking at you awkwardly. To the west is COSI. There is an exit south.
-2 You are in the hallway. COSI is to the north and the hallway continues east.
-3 You are in the hallway. The ITL is to the north and the hallway continues east and west.
+2 You are in the SC 3rd floor hallway. COSI is to the north and the hallway continues east and west.
+3 You are in the SC 3rd floor hallway. The ITL is to the north and the hallway continues east and west.
 4 You are outside Tony's office. The hallway continues north and west.
 5 You are near the Snell bridge. The hallway continues south and west.
 6 You are at the bottom of the Snell ramp-bridge. The hallway continues east and the ramp goes north.
 7 You are at the top of the Snell ramp-bridge. The ramp goes south.
+8 You are in the SC 3rd floor hallway. There are classrooms north and an elevator south. The hallway continues east and west.
+9 You are in the Concrete Cafe. The hallway continues east and west.
+10 You are outside the MCS offices. The 3rd floor lecture hall lobby is to the north. The hallway continues east and west.
+11 You are in the 3rd floor of the lecture hall lobby. There are stairwells east and west. The lecture halls are to the north. This is a fine place for whirligigs.
+12 You are between the 3rd floor lecture halls. SC360 is to the east and SC362 is to the west.
+13 You are at the top of the SC-TAC starwell. The hallway continues east.
 -1 begin room links R N S E W
 0 -1  2  1 -1
 1 -1  3 -1  0
-2  0 -1  3 -1
+2  0 -1  3  8
 3  1 -1  4  2
 4  5 -1 -1  3
 5 -1  4 -1  6
 6  7 -1  5 -1
 7 -1  6 -1 -1
+8 -1 -1  2  9
+9 -1 -1  8 10
+10 11 -1  9 13
+11 12 10 -1 -1
+12 -1 11 -1 -1
+13 -1 -1 10 -1
 -1 begin object properties [take eat lock]
 0 pizza
 0 There is free pizza on the table.
 0 It is cold and cardboard-like. You see a fly on one slice. It is probably still edible.
 0 1 1 0
-1 ITL door
+1 door
 1 The ITL door is unlocked
-1 A sliding door made mostly of glass.
+1 It's a wooden door that has a lock. It has the ITL schedule on it.
 1 0 0 1
 2 Moxie
 2 There is Moxie in the fridge.
@@ -33,11 +45,21 @@
 3 There is a rolling chair.
 3 It swivels.
 3 1 0 0
--1 begin room-object lists
+4 wall
+4 Something seems to be written on the wall under the whiteboard.
+4 It says "SEMI   EGG"
+4 0 0 0
+5 vendingmachine
+5 There is a vending machine full of snacks.
+5 It is out of order because money is not implemented yet.
+5 0 0 0
+-1 begin room-object lists, with leading zeroes
 0 0 0
 0 0 2
 0 0 3
 0 1 1
+0 0 4
+0 11 5
 -1 begin trigger list
 0 c in 0
 0 c rand 10
