@@ -17,7 +17,7 @@ void loadDataFile(world_t * clarkson){
 
 	int x;
 	int rv;
-	int n, s, e, w;
+	int n, s, e, w, u, d;
 	int rm, itm;
 	char ch;
 	FILE * f;
@@ -50,11 +50,13 @@ void loadDataFile(world_t * clarkson){
 				break;
 
 			case ROOM_LINKS:
-				assert(4 == fscanf(f, " %d %d %d %d\n", &n, &s, &e, &w));
+				assert(6 == fscanf(f, " %d %d %d %d %d %d\n", &n, &s, &e, &w, &u, &d));
 				clarkson->allRooms[x].north = n != -1 ? clarkson->allRooms + n : NULL;
 				clarkson->allRooms[x].south = s != -1 ? clarkson->allRooms + s : NULL;
 				clarkson->allRooms[x].east  = e != -1 ? clarkson->allRooms + e : NULL;
 				clarkson->allRooms[x].west  = w != -1 ? clarkson->allRooms + w : NULL;
+				clarkson->allRooms[x].up    = u != -1 ? clarkson->allRooms + u : NULL;
+				clarkson->allRooms[x].down  = d != -1 ? clarkson->allRooms + d : NULL;
 				break;
 
 			case OBJ_PROP:

@@ -53,6 +53,8 @@ void go(compass c, room_t ** room){
 	case SOUTH: n = (*room)->south; break;
 	case EAST:  n = (*room)->east;  break;
 	case WEST:  n = (*room)->west;  break;
+	case UP:    n = (*room)->up;    break;
+	case DOWN:  n = (*room)->down;  break;
 	default: ;
 	}
 
@@ -181,6 +183,8 @@ int main(){
 		if (striEqu(cmd[0],"south")) go(SOUTH, &clarkson->room);
 		if (striEqu(cmd[0],"east")) go(EAST, &clarkson->room);
 		if (striEqu(cmd[0],"west")) go(WEST, &clarkson->room);
+		if (striEqu(cmd[0],"up")) go(UP, &clarkson->room);
+		if (striEqu(cmd[0],"down")) go(DOWN, &clarkson->room);
 		if (striEqu(cmd[0],"go")) go(direction(cmd[1]), &clarkson->room);
 		if (striEqu(cmd[0],"take")) take(clarkson->room->items, clarkson->inventory, cmd[1]);
 		if (striEqu(cmd[0],"drop")) drop(clarkson->room->items, clarkson->inventory, cmd[1]);

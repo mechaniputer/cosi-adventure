@@ -19,7 +19,7 @@ struct item {
 
 struct room {
 	char * description;
-	room_t * north, * south, * east, * west;
+	room_t * north, * south, * east, * west, * up, * down;
 	itemList_t * items;
 };
 
@@ -44,6 +44,8 @@ typedef enum {
 	SOUTH,
 	EAST,
 	WEST,
+	UP,
+	DOWN,
 	EAST_BY_EAST_WEST
 } compass;
 
