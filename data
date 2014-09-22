@@ -42,5 +42,10 @@
 0 c in 0
 0 c rand 10
 0 r echo Chris falls out of his chair
+1 c in 7
+1 c rand 3
+1 c has 3
+1 r teleport 6
+1 r echo You jump onto your chair and ride it down the ramp
 -1
 

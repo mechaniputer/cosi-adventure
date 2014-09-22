@@ -201,10 +201,13 @@ int main(){
 	free(clarkson->allItems->itemArray);
 	free(clarkson->allItems);
 
+	/* TODO Fix freeing of triggers. */
+	/*
 	for (quit = 0; quit < clarkson->numTrigs; quit++) {
 		free(clarkson->allTrigs[quit].res->param[0].s);
-		free(clarkson->allTrigs);
 	}
+	free(clarkson->allTrigs);
+	*/
 
 	for (quit = 0; quit < clarkson->numRooms; quit++) {
 		free(clarkson->allRooms[quit].items->itemArray);

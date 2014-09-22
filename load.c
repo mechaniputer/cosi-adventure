@@ -117,6 +117,9 @@ void loadDataFile(world_t * clarkson){
 					case R_DISABLE:
 						assert(1 == fscanf(f, "%d ", &res->param[0].i));
 						break;
+					case R_TELEPORT:
+						assert(1 == fscanf(f, " %d\n", &res->param[0].i)); 
+						break;
 					default:
 						assert(0);
 					}
@@ -130,6 +133,9 @@ void loadDataFile(world_t * clarkson){
 					switch (ctype){
 					case C_IN:
 					case C_RAND:
+						assert(1 == fscanf(f, "%d ", &con->param));
+						break;
+					case C_HAS:
 						assert(1 == fscanf(f, "%d ", &con->param));
 						break;
 					default:

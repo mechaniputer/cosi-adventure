@@ -8,7 +8,8 @@
 con_type getCtype(const char * str){
 	static const char * names[]={
 		"in",
-		"rand"
+		"rand",
+		"has"
 	};
 
 	int i;
@@ -24,7 +25,8 @@ res_type getRtype(const char * str){
 		"link",
 		"echo",
 		"enable",
-		"disable"
+		"disable",
+		"teleport"
 	};
 
 	int i;
@@ -51,19 +53,27 @@ void initTrigger(trigger_t * t){
 	}
 }
 
+/* Checks if conditions are met */
 static int condGood(const condition_t * c, world_t * w) {
 	int rm = w->room - w->allRooms;
+	int i;
 	assert(rm < w->numRooms && rm >= 0);
 
 	switch (c->type){
 	case C_NONE: return 1;
 	case C_RAND: return !(rand() % c->param);
 	case C_IN:   return c->param == rm;
+	case C_HAS:
+		for (i = 0; i < w->inventory->size; i++){
+			if (striEqu(w->inventory->itemArray[i]->name, w->allItems->itemArray[c->param]->name )) return 1;
+		}
+		return 0;
 	default: assert(0);
 	}
 	return 0;
 }
 
+/* Enacts results of trigger events */
 static void resulting(const result_t * r, world_t * w) {
 	switch (r->type){
 	case R_NONE:
@@ -77,6 +87,9 @@ static void resulting(const result_t * r, world_t * w) {
 	case R_ENABLE:
 	case R_DISABLE:
 		w->allTrigs[r->param[0].i].enabled = (r->type == R_ENABLE);
+		break;
+	case R_TELEPORT:
+		w->room = &(w->allRooms[r->param[0].i]);
 		break;
 	default:
 		assert(0);

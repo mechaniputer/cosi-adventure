@@ -11,6 +11,7 @@ typedef enum{
 	C_NONE = -1,
 	C_IN,
 	C_RAND,
+	C_HAS,
 	C_MAX
 } con_type;
 
@@ -20,6 +21,7 @@ typedef enum{
 	R_ECHO,
 	R_ENABLE,
 	R_DISABLE,
+	R_TELEPORT,
 	R_MAX
 } res_type;
 
@@ -39,7 +41,6 @@ struct result{
 #define MAX_CON_CNT 8
 #define MAX_RES_CNT 8
 
-/* TODO make dynamic */
 struct trigger{
 	int enabled;
 	condition_t con[MAX_CON_CNT];

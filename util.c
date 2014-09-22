@@ -52,6 +52,7 @@ void addRoom(world_t * clarkson){
 	roomInit(clarkson->allRooms[clarkson->numRooms-1]);
 }
 
+/* TODO Currently something associated with the trigger loading process leaks memory */
 void addTrig(world_t * clarkson){
 	clarkson->numTrigs++;
 	clarkson->allTrigs = realloc(clarkson->allTrigs, sizeof(trigger_t) * clarkson->numTrigs);
