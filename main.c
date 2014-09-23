@@ -206,12 +206,10 @@ int main(){
 	free(clarkson->allItems);
 
 	/* TODO Fix freeing of triggers. */
-	/*
-	for (quit = 0; quit < clarkson->numTrigs; quit++) {
-		free(clarkson->allTrigs[quit].res->param[0].s);
-	}
+	/* This kludgery reduces it to 81 bytes per run */
+	free(clarkson->allTrigs[0].res->param[0].s);
 	free(clarkson->allTrigs);
-	*/
+	
 
 	for (quit = 0; quit < clarkson->numRooms; quit++) {
 		free(clarkson->allRooms[quit].items->itemArray);
