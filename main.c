@@ -8,6 +8,7 @@
 #include "load.h"
 
 #define MAX_CMD_ARGS 10
+#define BUF_LEN 80
 
 /* Loads data into structs */
 void init(world_t * clarkson){
@@ -139,7 +140,7 @@ void examine(itemList_t * ila, itemList_t * ilb, const char * what){
 	puts("You examine that which is not there, and ponder the mysteries of existence.");
 }
 
-void parse(char * inp, char cmd[MAX_CMD_ARGS][80]){
+void parse(char * inp, char cmd[MAX_CMD_ARGS][BUF_LEN]){
 	int i;
 	char * start;
 
@@ -159,9 +160,9 @@ void parse(char * inp, char cmd[MAX_CMD_ARGS][80]){
 int main(){
 	int quit=0;
 	world_t * clarkson;
-	char cmd[MAX_CMD_ARGS][80];
-	char inp[80];
-	inp[79] = 0;
+	char cmd[MAX_CMD_ARGS][BUF_LEN];
+	char inp[BUF_LEN];
+	inp[BUF_LEN-1] = 0;
 
 	srand(time(NULL));
 
@@ -175,7 +176,7 @@ int main(){
 	/* This loop takes commands until one works */
 	while(!quit) {
 		printf("What do? ");
-		fgets(inp, 79, stdin); /* Get commands */
+		fgets(inp, BUF_LEN-1, stdin); /* Get commands */
 		parse(inp, cmd);
 
 		if (striEqu(cmd[0],"quit")) quit=1;
