@@ -81,12 +81,17 @@
 5 There is a vending machine full of snacks.
 5 It is out of order because money is not implemented yet.
 5 0 0 0
+6 fridge
+6 There is a fridge here.
+6 A black fridge containing an assorment of disgust and soda. It is not recommended to place said soda close the the back of this device.
+6 0 0 0
 -1 begin room-object lists, with leading zeroes
 0 0 0
 0 0 2
 0 0 3
 0 1 1
 0 0 4
+0 0 6
 0 11 5
 -1 begin trigger list
 0 c in 0
