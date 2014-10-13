@@ -203,6 +203,37 @@ void parse(char * inp, char cmd[MAX_CMD_ARGS][BUF_LEN]){
 	}
 }
 
+void idontunderstand(const char * stuff) {
+	const char * words[] = {
+		"I do not understand '%s'.",
+		"What does '%s' mean?",
+		"'%s'? Come again?",
+		"I know not of this '%s' of which thy speak.",
+		"Perhaps one day I will know the meaning of '%s'.",
+		"'%s'? What's that? Some kind of strange fruit?",
+		"'%s'? Is that like a slime mold?",
+		"Of course, of course, '%s'! I understand! Just kidding, I don't know what that means.",
+		"Somewhere, there is some machine that understands '%s'. Unfortunately, it is not this one.",
+		"Maybe one day, I will understand the true meaning of your words, such as '%s'. Alas, that day is not today.",
+
+		"Your words carry far,\n"
+		"From the white coast of Albion,\n"
+		"To the towering peaks of the Himalayas,\n"
+		"From the soft tundras of the Norden,\n"
+		"To the wisping sands of the Sahara.\n"
+		"I hear them resounding throughout the world.\n"
+		"But I know naught their meaning,\n"
+		"Nor do I know that of your prose or poems,\n"
+		"Of your heart or soul,\n"
+		"Of the word '%s'."
+	};
+	static int i = 0;
+
+	printf(words[i], stuff);
+	i = (i + 1) % countof(words);
+	puts("");
+}
+
 int main(){
 	int quit=0;
 	world_t * clarkson;
@@ -226,18 +257,19 @@ int main(){
 		parse(inp, cmd);
 
 		if (striEqu(cmd[0],"quit")) quit=1;
-		if (striEqu(cmd[0],"north")) go(NORTH, &clarkson->room);
-		if (striEqu(cmd[0],"south")) go(SOUTH, &clarkson->room);
-		if (striEqu(cmd[0],"east")) go(EAST, &clarkson->room);
-		if (striEqu(cmd[0],"west")) go(WEST, &clarkson->room);
-		if (striEqu(cmd[0],"up")) go(UP, &clarkson->room);
-		if (striEqu(cmd[0],"down")) go(DOWN, &clarkson->room);
-		if (striEqu(cmd[0],"go")) go(direction(cmd[1]), &clarkson->room);
-		if (striEqu(cmd[0],"take")) take(clarkson->room->items, clarkson->inventory, cmd[1]);
-		if (striEqu(cmd[0],"drop")) drop(clarkson->room->items, clarkson->inventory, cmd[1]);
-		if (striEqu(cmd[0],"look")) watsup(clarkson->room);
-		if (striEqu(cmd[0],"inv")) showinv(clarkson->inventory);
-		if (striEqu(cmd[0],"examine")) examine(clarkson->inventory, clarkson->room->items, cmd[1]);
+		else if (striEqu(cmd[0],"north")) go(NORTH, &clarkson->room);
+		else if (striEqu(cmd[0],"south")) go(SOUTH, &clarkson->room);
+		else if (striEqu(cmd[0],"east")) go(EAST, &clarkson->room);
+		else if (striEqu(cmd[0],"west")) go(WEST, &clarkson->room);
+		else if (striEqu(cmd[0],"up")) go(UP, &clarkson->room);
+		else if (striEqu(cmd[0],"down")) go(DOWN, &clarkson->room);
+		else if (striEqu(cmd[0],"go")) go(direction(cmd[1]), &clarkson->room);
+		else if (striEqu(cmd[0],"take")) take(clarkson->room->items, clarkson->inventory, cmd[1]);
+		else if (striEqu(cmd[0],"drop")) drop(clarkson->room->items, clarkson->inventory, cmd[1]);
+		else if (striEqu(cmd[0],"look")) watsup(clarkson->room);
+		else if (striEqu(cmd[0],"inv")) showinv(clarkson->inventory);
+		else if (striEqu(cmd[0],"examine")) examine(clarkson->inventory, clarkson->room->items, cmd[1]);
+		else idontunderstand(cmd[0]);
 
 		trigVerify(clarkson);
 	}
