@@ -10,6 +10,8 @@
 #define MAX_CMD_ARGS 10
 #define BUF_LEN 80
 
+#define countof(X) (sizeof(X) / sizeof(*(X)))
+
 /* Loads data into structs */
 void init(world_t * clarkson){
 
@@ -141,13 +143,54 @@ void examine(itemList_t * ila, itemList_t * ilb, const char * what){
 }
 
 void parse(char * inp, char cmd[MAX_CMD_ARGS][BUF_LEN]){
-	int i;
+	int i, j;
 	char * start;
 
+	const struct {
+		char * from, * to;
+	} synonyms[] = {
+		{ "n", "north" },
+		{ "s", "south" },
+		{ "e", "east"  },
+		{ "w", "west"  },
+		{ "u", "up"    },
+		{ "d", "down"  },
+	};
+
+	const char * ignores[] = {
+		"a",
+		"the",
+	};
+
 	for (i = 0; i < MAX_CMD_ARGS && *inp; i++) {
+		/* find the token */
 		while (isspace(*inp)) inp++;
 		start = inp;
 		while (!isspace(*inp) && *inp) inp++;
+
+		/* check for ignores */
+		for (j = 0; j < countof(ignores); j++) {
+			if (!strncmp(ignores[j], start, inp-start)) break;
+		}
+
+		if (j != countof(ignores)) {
+			i--;
+			continue;
+		}
+
+		/* check for synonyms */
+		for (j = 0; j < countof(synonyms); j++) {
+			if (!strncmp(synonyms[j].from, start, inp-start)) {
+				strcpy(cmd[i], synonyms[j].to);
+				break;
+			}
+		}
+
+		if (j != countof(synonyms)) {
+			continue;
+		}
+
+		/* standard copy of the word */
 		memcpy(cmd[i], start, inp-start);
 		cmd[i][inp-start] = 0;
 	}
