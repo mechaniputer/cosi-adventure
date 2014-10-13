@@ -228,6 +228,8 @@ void idontunderstand(const char * stuff) {
 	};
 	static int i = 0;
 
+	if (!*stuff) return;
+
 	printf(words[i], stuff);
 	i = (i + 1) % countof(words);
 	puts("");
