@@ -16,7 +16,17 @@
 14 You are at the top an unused stairwell. The lecture halls are to the south.
 15 You are in science center room 360. It is large and expansive. The hallway is to the west.
 16 You are in science center toom 362. It is mediocre in size. The hallway is to the east.
-17 You are on the second floor of the TAC. The stairs lead up to the science center.
+17 You are on the second floor of the TAC. The stairs lead up to the science center, to the west is the rest of the TAC.
+18 You are on the second floor of the TAC, south of the fishbowl rooms. The TAC continues east and west.
+19 You are between the TAC fishbowls, which lie to the west and east, with the hallway to the south
+20 You are in the east TAC fishbowl.
+21 You are in the west TAC fishbowl.
+22 You are in the west TAC hall. There is a random assortment of computers to the north, the hallway continues to the east and west.
+23 You are in a strangely located computer "lab" in the TAC. There are some printers and computers here. The hallway is to the south.
+24 You are in a hallway on the second floor of the ERC. To the south you can overlook the first floor, and the north wall is lined with study rooms. The hallway continues east and west.
+25 You are in a intersection of hallways. The hallway to the TAC is to the east. The bridge to the student center is to the west. To the south is a stairway to the 1st floor of the ERC.
+26 You are on the first floor of the ERC. To the north is a stairway to the second floor.
+27 You are on the enclosed bridge between the student center and the ERC. The ERC is to the east, and the student center is to the west.
 -1 begin room links R N S E W U D
 0 -1  2  1 -1 -1 -1
 1 -1  3 -1  0 -1 -1
@@ -35,7 +45,17 @@
 14 -1 12 -1 -1 -1 -1
 15 -1 -1 -1 12 -1 -1
 16 -1 -1 12 -1 -1 -1
-17 -1 -1 -1 -1 13 -1
+17 -1 -1 -1 18 13 -1
+18 19 -1 17 22 -1 -1
+19 -1 18 20 21 -1 -1
+20 -1 -1 -1 19 -1 -1
+21 -1 -1 19 -1 -1 -1
+22 23 -1 18 24 -1 -1
+23 -1 22 -1 -1 -1 -1
+24 -1 -1 22 25 -1 -1
+25 -1 26 24 27 -1 26
+26 25 -1 -1 -1 25 -1
+27 -1 -1 25 -1 -1 -1
 -1 begin object properties [take eat lock]
 0 pizza
 0 There is free pizza on the table.
