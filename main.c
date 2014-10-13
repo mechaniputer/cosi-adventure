@@ -65,7 +65,6 @@ void go(compass c, room_t ** room){
 		puts("You cannot go that way.");
 	} else {
 		*room = n;
-		watsup(*room);
 	}
 }
 
@@ -237,6 +236,7 @@ void idontunderstand(const char * stuff) {
 int main(){
 	int quit=0;
 	world_t * clarkson;
+	room_t * prev = NULL;
 	char cmd[MAX_CMD_ARGS][BUF_LEN];
 	char inp[BUF_LEN];
 	inp[BUF_LEN-1] = 0;
@@ -248,10 +248,15 @@ int main(){
 
 	/* Load data, create world */
 	init(clarkson);
-	watsup(clarkson->room);
 
 	/* This loop takes commands until one works */
 	while(!quit) {
+		/* Show room updates */
+		if (prev != clarkson->room) {
+			watsup(clarkson->room);
+			prev = clarkson->room;
+		}
+
 		printf("What do? ");
 		fgets(inp, BUF_LEN-1, stdin); /* Get commands */
 		parse(inp, cmd);
