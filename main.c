@@ -155,6 +155,9 @@ void parse(char * inp, char cmd[MAX_CMD_ARGS][BUF_LEN]){
 		{ "w", "west"  },
 		{ "u", "up"    },
 		{ "d", "down"  },
+		{ "pickup", "take" },
+		{ "get", "take" },
+		{ "inventory", "inv" },
 	};
 
 	const char * ignores[] = {
